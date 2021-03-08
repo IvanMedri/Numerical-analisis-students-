@@ -1,0 +1,485 @@
+\chapter{Interpolation and Polynomial Approximation}
+\newpage 
+
+\section{Lagrange Polynomials and Newton's Polynomials - Divided Differences}
+\begin{problem}
+    Let $x_0,x_1,\dots x_n$ be $n+1$ distinct points, and $y_0,y_1,\dots,y_n$ be $n+1$ (non necessarily distinct) values. How can we find a polynomial $p$ such that $p(x_i)=y_i$, for $i=0,\dots,n$?
+\end{problem}
+
+
+\begin{remark}
+    So far we have used Taylor's polynomials several times. The main property of the Taylor polynomial $P_n$ of degree $n$ centered at a point $x_0$ of a function $f$ is that the derivatives of $f$ and $P_n$ coincide up to order $n$ at $x_0$. That is, $P_n^{(k)}(x_0) = f^{(k)}(x_0)$ for $k=0,\dots,n$.\par
+    Let us momentarily forget about the function $f$ and think that instead of having all the derivatives of $f$ at that point we just have $n+1$ arbitrary values $y_0,y_2,\dots,y_n$. Then, we can just think about the Taylor polynomial $P_n$ centered at $x_0$ as the only polynomial of at most degree $n$ that satisfies $P_n^{(k)}(x_0)=y_k$. Think that since $P_n$ has $n+1$ coefficients, to find them you need $n+1$ equations or pieces of information. \par
+    In this Section we will do something similar to this. However, instead of having the information of $n+1$ derivatives at one point, we will have the information about the value of the polynomial at $n+1$ points.\par 
+    Then we will try to use this polynomial to approximate a function whose values coincide at those points.
+\end{remark}
+
+\begin{theorem} (Lagrange interpolation)
+    If $x_0,x_1,\dots,x_n$ are $n+1$ distinct numbers and $f(x_1),f(x_2),\dots,f(x_n)$ are $n+1$ (not necessarily distinct) values. Then, a unique polynomial $P(x)$ of degree at most $n$ exists with 
+    \begin{equation}\label{interp_eq}
+        P(x_k)=f(x_k), \text{ for all } k=0,\dots,n.
+    \end{equation}
+    Moreover, this polynomial is given by 
+    \begin{equation*}
+        P(x) = \sum_{k=0}^n f(x_k) \cdot L_{n,k}(x),
+    \end{equation*}
+    where, 
+    \begin{equation*}
+        L_{n,k}(x) = \prod_{i=0, i\neq k}^n\frac{(x-x_i)}{(x_k-x_i)}.
+    \end{equation*}
+\end{theorem}
+
+\begin{proof}
+    For the uniqueness part the only thing we need to check is that if two polynomial $p, q$ of degree less or equal than $n$ satisfy the equations \eqref{interp_eq} then they are equal. But that is trivially true since in that case $r(x):=p(x)-q(x)$ will be a polynomial with $\deg(r)\leq n$ and $n+1$ roots so it would be $0=r=p-q$. Therefore, $p=q$.\par 
+    To show that 
+    \begin{equation*}
+        P(x) = \sum_{k=0}^n f(x_k) \cdot L_{n,k}(x)
+    \end{equation*}
+    satisfies the equations given, it is enough to notice that 
+    \begin{equation*}
+        L_{n,k}(x_j) = \delta_{jk}=
+        \begin{cases}
+            1 \text{ if } j=k\\
+            0 \text{ if } j\neq k.
+        \end{cases}
+    \end{equation*}
+    Therefore,
+    \begin{equation*}
+        P(x_j) = \sum_{k=0}^n f(x_k) \cdot L_{n,k}(x_j) = f(x_j) \cdot 1 = f(x_j).
+    \end{equation*}
+\end{proof}
+
+
+\begin{definition}
+    The interpolating polynomial of the form \eqref{interp_eq} is said to be in Lagrange Form. 
+\end{definition}
+
+\begin{definition}(Newton's form of interpolating polynomial) 
+    The Lagrange form of the interpolating polynomial is not convenient for computations. If we want to increase the degree of the polynomial we cannot reuse the work done in getting a lower degree one.\par
+    There is another representation of the interpolating polynomial which is very efficient for this purpose and also is very useful to evaluate the polynomial afterwards. It is called the Newton form of the interpolating polynomial and it is as follows,
+    \begin{equation*}
+        p(x) = c_0 + c_1(x-x_0)+\cdots + c_{n-1}(x-x_0)\cdots(x-x_{n-1})=
+        \sum_{j=0}^n c_j q_j(x),
+    \end{equation*}
+    where 
+    \begin{equation*}
+        q_0(x) = 1, \qquad q_j(x) = \prod_{k=0}^{j-1}(x-x_j).
+    \end{equation*}
+\end{definition}
+
+Notice that in this case we can compute higher order interpolating polynomial by re-using lower other ones. 
+
+\begin{example}
+    Suppose one wants to interpolate a polynomial at the points $x_0,x_1,x_2$ but one gets the values at each point $f(x_0),f(x_1),f(x_2)$ sequentially.\par  We could at first just find a polynomial of degree zero that satisfies 
+        $$p_0(x_0) = c_0 = f(x_0).$$ 
+    When one gets the new information at $x_1$ one actualizes to a polynomial of degree 1 
+        $$p_1:= c_0 + c_1(x-x_0).$$ 
+    Notice that the new term does not change the value at $x_0$ so $p_1(x_0)$ is still $f(x_0)$. Using $f(x_1) = p_1(x_1)$ one can find the value of the constant $c_1$. \par
+    When finally we obtain $f(x_3)$ we update to a polynomial 
+        $$p_1:= c_0 + c_1(x-x_0) + c_2(x-x_0)(x-x_1).$$
+    Notice that, as before, the new term does not modify the values at previous points. In this procedure each coefficient is calculated once and then every time new information arrives one just have to find a new constant without modifying the previous ones. That is why this form is preferred to Lagrange form. Nevertheless, the interpolating polynomial is still the same as before, just written in a different format.
+\end{example}
+
+\begin{definition}(Divided differences) 
+    Notice that each coefficient $c_k$ in Newton's for is the highest order coefficient of the interpolating polynomial at the points $x_0,\dots,x_k$ and that it depends on the values $f(x_0),\dots,f(x_k)$. As such, and to explain the method to find them, we use the notation 
+        $$c_k = f[x_0, \dots, x_k].$$
+    More generally we write 
+        $$f[x_i, \dots, x_j]$$ 
+    as  the highest order coefficient of the polynomial of degree $i-j+1$ interpolating the values  $f(x_i), \dots, f(x_j)$  at the points  $x_i\dots, x_j$.\par
+    We call this numbers $f[x_i, \dots, x_j]$ as the \defi{divided differences} respect to $x_i, \dots,x_j$. The name is justified by the next proposition.
+\end{definition}
+
+\begin{proposition}
+    Divided differences satisfy the equation
+    $$f[x_i, \dots, x_j] = \frac{f[x_{i+1},\dots,x_j] - f[x_{i},\dots,x_{j-1}]}{x_j-x_i}.$$
+\end{proposition}
+
+\begin{proof}
+    To prove this it is a nice idea to understand how one can create a polynomial $r$ interpolating at $x_i,\dots,x_j$ by two polynomials $p,q$ interpolating $x_{i+1},\dots,x_j$ and $x_{i},\dots,x_{j-1}$ respectively. First, we think as with Newton's form. Since $p$ interpolates the first points we can construct 
+        $$r = p + c_j \tilde{r},$$
+    where $c_j$ will be determined and $\tilde{r}$ should be a polynomial that does not modify the first  points. Therefore, one possibility is 
+        $$\tilde{r}= (p-q)(x-x_i).$$ 
+    In that case, since we want $r(x_j) = q(x_j)$, 
+        $$c_j = \frac{q(x_j)-p(x_j)}{(x_j-x_i) (p(x_j)-q(x_j))}= 1/(x_i - x_j).$$
+    Therefore, 
+        $$r = p + (p-q) \frac{x-x_i}{x_i-x_j}.$$
+    Now, $f[x_i,\dots,x_j]$, $f[x_{i},\dots,x_{j-1}]$ and  $f[x_{i+1},\dots,x_j]$ are the highest order coefficient of $r,p$ and $q$ respectively. Then, 
+        $$f[x_i,\dots,x_j] = \frac{f[x_{i},\dots,x_{j-1}]-f[x_{i+1},\dots,x_j]}{x_i-x_j}. $$
+\end{proof}
+
+\begin{method} (Divided differences) 
+    Now that we have a recursive formula for the values $f[x_i,\dots, x_j]$ we can create an algorithm to compute them. Remember that what we are looking for are just the coefficients $c_k:=f[x_0, \dots,x_k]$. So that will be the output of our algorithm. \par
+    For simplicity we will denote $F_{i,j} := f[x_{i-j},\dots,x_i]$ (Notice that the subindex $i$ denotes the last entrance and the subindex $j$ how many more entrances we should add back. With this notation $f[x_j] = f(x_j) = F{j,0}$ and $f[x_0,\dots,x_j] = F_{j,j}$. To compute them we will use a diagonal movement following the graph,
+    
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[scale=0.5]{Graph divided differences algorithm.png}
+    \end{figure}   
+    
+    The numbers in red represent the order in which we compute each number. The arrows in green represent the dependence of each number on the previous ones. For example, we would start with $F_{0,0} = f(x_0)$, then $F_{1,0} = f(x_1)$, once we have those we can compute $F_{1,1} = (F_{1,0}- F_{0,0})/(x_1-x_0)$ using the divided differences formula. The next step would be to input $F_{2,0}=f(x_2)$ and keep repeating the same procedure as before. \par
+    Notice that the only things that we need in the end are the numbers in the first row that are the coefficients of the interpolating polynomial. Nevertheless, if we also save the lowest diagonal, we can compute another coefficient later if we have new points to interpolate. 
+\end{method}
+
+
+
+\begin{algorithm}[H]\caption{Divided Differences}
+    Compute the divided differences coefficients of the interpolatory polynomial $P$ on the $(n+1)$ distinct numbers $x_0,\dots,x_n$ for the function $f$.\\
+    \KwIn{Numbers $x_0,\dots,x_n$;\newline
+    Values $f(x_0),\dots,f(x_n)$ as $F_{0,0},\dots,F_{n,0}$;}
+    \KwOut{Numbers $F_{0,0},\dots,F_{n,n}$ where 
+    \begin{equation*}
+        P_n(x) = F_{0,0} + \sum_{i=1}^n F_{i,i}\prod_{j=0}^{i-1}(x-x_j) \qquad\text{//}{F_{i,i}=f[x_0,\dots,x_i]} 
+    \end{equation*}}
+    \For{i=1,\dots,n}{
+        \For{j=1,\dots,i}{
+            $$F_{i,j}=\frac{F_{i,j-1}-F_{i-1}{j-1}}{x_i-x_j}$$
+        }
+    
+    }
+    OUTPUT(F_{0,0}, F_{1,1},\dots, F_{n,n})
+\end{algorithm}
+
+
+\begin{theorem}(Error formula for interpolation) (Cauchy Form)
+    Let $f$ be a function in $C^{n+1}[a,b]$, and let $p$ be the polynomial of degree at most $n$ that interpolates the function $f$ at $n+1$ distinct points $x_0,x_1,\dots,x_n$ in the interval $[a,b]$. To each $x\in [a,b]$ there corresponds a point $\xi$ (That depends on $x$) in $(a,b)$ such that 
+    \begin{equation}\label{cauchy_remainder_interp}
+        f(x)-p(x) = \frac{1}{(n+1)!}f^{(n+1)}(\xi) \prod_{i=0}^{n}(x-x_i).
+    \end{equation}
+\end{theorem}
+
+\begin{proof}
+    If $x$ is one of the nodes of interpolation $x_i$, the assertion is true since both sides of \eqref{cauchy_remainder_interp} reduce to $0$. So, let $x$ be any point other than a node. Let $q$ be the polynomial that interpolates $f$ at $\{x_1,\dots,x_n,x\}$, then $q$ has the form 
+    \begin{equation*}
+        q(t) = p+\lambda\omega(t),        \text{(Remember Newton's formula)}
+    \end{equation*}
+    where 
+    \begin{equation*}
+        \omega(t) = \prod_{i=1}^n (t-x_i), \qquad \lambda = \frac{f(x)-p(x)}{\omega(x)}.
+    \end{equation*}
+    Notice that $x$ is considered fixed (so $\lambda$ too) and the variable for $q$ is $t$. Now $f(t) = q(t)$ for $t=x_1,\dots,x_n,x$. Thus, the function $\phi(t) = (f-q)(t)$ has $n+2$ zeros. Differentiating (resp $t$) and using Rolle's Theorem we obtain that $\phi'(t)$ has $n+1$ zeros. If we continue differentiating, we conclude eventually that
+    $\phi^{(n+1)}$ has at least one zero $\xi(x)\in (a,b)$. Moreover, 
+    \begin{equation*}
+        0 = \phi^{(n+1)}(\xi) = (f^{n+1}-q^{n+1})(\xi) = f^{n+1}(\xi)-(n+1)!\lambda.
+    \end{equation*}
+    Hence, we have 
+    \begin{equation*}
+        f(x) - p(x) = \frac{f^{(n+1)}(\xi)}{(n+1)!} \omega(x). 
+    \end{equation*}
+\end{proof}
+
+
+\hrule    
+\begin{exercise} (Generalize error formula for osculating polynomial)
+
+\end{exercise}
+
+\begin{exercise} (Find error formula for interpolation using divided differences)
+
+\end{exercise}
+
+\begin{exercise} (Adapt divided differences algorithm to osculating )
+
+\end{exercise}
+
+%5%%%5%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newpage
+\section{A little bit of Approximation Theory}
+
+\begin{problem}
+    The problem of function approximation is central to many numerical methods: Given a continuous function $f$ in an interval $[a,b]$, we would like to find a good approximation to it by simpler functions, such as polynomials, trigonometric polynomials, wavelets, rational functions, etc. We are going to measure the accuracy of the approximation using norms and ask whether or not there is a best approximation out of functions from a given family of simpler functions.
+\end{problem}
+
+
+\begin{definition}
+    Given a normed linear space $V$ and a subspace $W$ of $V$, $p^*\in W$ is called the best approximation of $f\in V$ by elements of $W$ if 
+    \begin{equation*}
+        ||f-p^*||\leq ||f-p|| \qquad \text{for all } p\in W.
+    \end{equation*}
+\end{definition}
+
+
+\begin{theorem}
+    Let $W$ be a finite-dimensional subspace of a normed linear space $V$.  Then, for every $f\inV$, there is at least one best approximation to $f$ by elements of $W$.
+\end{theorem}
+
+
+\begin{definition}(Strictly convex norm)
+    A norm $||\cdot||$ on a vector space $V$ is strictly convex if for all $f\neq g$ in $V$ with $||f||=||g||=1$ then 
+    \begin{equation*}
+        ||\theta f+(1-\theta)g|| < 1, \qquad \text{for all } 0<\theta<1.
+    \end{equation*}
+\end{definition}
+    
+\begin{remark}
+    The $p$-norm is strictly convex for $1<p<\infty$ but not for $p=1$ or $p=\infty$.
+\end{remark}    
+    
+    
+\begin{theorem}(Uniqueness of best approximation) 
+    Let $V$ be a vector space with a strictly convex norm , $W$ a subspace of $V$, and $f\in V$. If $p^*$ and $q^*$ are best approximations of $f$ in $W$ then $p^*=q^*$.
+\end{theorem}
+
+
+\begin{example}(Finite dimensionality of $W$ is needed to guarantee best approximation)
+    
+\end{example}
+
+
+\begin{example}(Non strictly convex norms may lead to non uniqueness of the best approximation)
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Best Uniform Polynomial Approximation}
+
+
+\begin{problem}
+    Let $V$ be the space of continuous functions $C^0[a,b]$ with the supremum norm $||f||_\infty = \sup_{x\in [a,b]}|f(x)|$ and $W$ the set of polynomials of degree at most $n$, which we denote $\mathbb{P}_n$. The best approximation $p*\in \mathbb{P}_n$ to a function $f\in C^0[a,b]$ is the best polynomial of degree at most $n$ such that, \begin{equation*}
+        \sup_{x\in[a,b]}|f(x)-p^*(x)| 
+        \leq \sup_{x\in[a,b]}|f(x)-p(x)| 
+        \qquad \text{for all } p\in \mathbb{P}_n.
+    \end{equation*}
+    The problem of this section is to understand under which conditions such polynomial exists and how to find it.
+\end{problem}
+
+\begin{remark}
+    Remember that the $||\cdot||_\infty$ norm is not strictly convex. Therefore, uniqueness of the best approximation is not guaranteed a priori. Nevertheless, we luckily have the next Theorem and its Corollary. 
+\end{remark}
+
+\begin{theorem} (Chebyshev Equioscillation Theorem)
+    Let $f\in C[a,b]$. Then, $p_n^*\in \mathbb{P}_n$ is a best uniform approximation of $f$ if and only if there are at least $n+2$ points where the error $e_n :=f-p_n^*$ equioscillates between the values $\pm ||e_n||_\infty$.
+\end{theorem}
+
+\begin{corollary} (Uniqueness of polynomial approximation)
+    Let $f\in C[a,b]$. The best uniform approximation $p_n^*$ to $f$ by elements of $\mathbb{P}_n$ is unique.
+\end{corollary}
+
+\begin{remark}
+    The error function has to equioscillate between positive and negative values at least $n+2$ times. As a consequence, the best polynomial in $\mathbb{P}_n$ must interpolate the function at at least $n+1$ points. Which means that we could try to find the best approximation by finding the interpolating polynomial at those points. Unluckily, we do not have any information of the set of points where we have to interpolate. Moreover, there is no set of nodes that works for every function as the next Theorem shows. 
+\end{remark}
+
+\begin{theorem}(Faber)
+    Suppose for each $n=0,1,2,\dots$ we have a prescribed system of $n$-nodes
+        $$a\leq x_{n,0}<x_{n,1}<\cdots<x_{n,n-1}\leq b$$
+    There exists a continuous function $f$ such that the interpolating polynomials of $f$ using this nodes fail to converge uniformly to $f$.
+\end{theorem}
+
+\begin{theorem} (Positive result on approximation via interpolation)
+    If $f$ is a continuous function on $[a,b]$, then there exists a system of $n$-nodes
+        $$a\leq x_{n,0}<x_{n,1}<\cdots<x_{n,n-1}\leq b$$
+    such that the corresponding sequence of interpolating polynomials converge uniformly to $f$. 
+\end{theorem}
+
+\begin{remark}
+    Unluckily, fixed a function $f$ we do not know a priori the set of nodes such that the interpolating polynomials converge uniformly to $f$. Picking the right set of nodes is a problem in itself. Nevertheless, some things might be tried to improve the interpolation even thought it is not completely optimized. \par
+    Remember that the error on the interpolating polynomial can be bounded by Cauchy's Remainder formula
+    \begin{equation}
+        ||e_n||_\infty \leq \frac{|f^{(n+1)}(\xi)|}{(n+1)!} \prod_{i=0}^n (x-x_i).
+    \end{equation}
+    We have no control on the term  $f^{(n+1)}(\xi)$. However, we can choose interpolation nodes $x_0,\dots,x_n$ so that the factor 
+        $$\omega(x):=\prod_{i=0}^n (x-x_i)$$
+    is the smallest possible in the infinity norm. The function $\omega$ is a monic polynomial of degree $n+1$ so this problem is related to finding the monic polynomial of degree $n+1$ with smallest infinite norm. This can be solved using Chebyshev polynomials. In the end, the solution to this problem is to use the Chebyshev nodes
+        $$x_i = \cos\left(\frac{2i+1}{n+1}\frac{\pi}{2}\right)$$
+    for the interval $[-1,1]$, and the nodes
+        $$x_i = \frac{b+a}{2}+\frac{b-1}{2} \cos\left(\frac{2i+1}{n+1}\frac{\pi}{2}\right)$$
+    for a general interval $[a,b]$.
+\end{remark}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Spline Interpolation}
+
+\begin{problem}
+    Previous sections concerned the approximation of arbitrary functions on closed intervals using a single polynomial. However, even in the best case scenario, high-degree polynomials oscillate around the function. Moreover, if we are not allowed to choose the nodes of interpolation, that oscillation can become quite large as we have seen in the example of The Runge's function.  An alternative approach is to divide the approximation interval into a collection of subintervals and construct a different approximating polynomial on each subinterval. This is called \defi{Piecewise-Polynomial Approximation}.
+\end{problem}
+
+
+\begin{definition} (Piecewise-Linear Approximation) 
+    The simplest piecewise-polynomial approximation is piecewise-linear approximation, which consists of joining a set of data points 
+        $$\{(x_0,f(x_0)), \dots, (x_n,f(x_n))\}$$
+    by a series of straight lines.
+\end{definition}
+
+\begin{remark}
+    A big disadvantage of linear function approximation is that there is likely no differentiability at the endpoints of each subinterval. Often it is clear from physical conditions that smoothness is required, so the approximation must be continuously differentiable. 
+\end{remark}
+
+
+\begin{definition} (Cubic spline interpolation)
+    The most common piecewise-polynomial approximation uses cubic polynomials between each pair of nodes and is called \defi{cubic spline interpolation}. \par Specifically, given a function $f$ defined o $[a,b]$ and a set of nodes $a=x_0<x_1<\cdots<x_n=b$, a \defi{cubic spline interpolant} $S$ for $f$ is a function that satisfies the following conditions:
+    \begin{enumerate}
+        \item $S$ consist of the concatenations of $n$ cubic polynomials $S_j:[x_j,x_{j+1}]\to \R$ for $j=0,1,\dots,n-1$.
+        \item $S_j(x_j) = f(x_j)$, $S_j(x_{j+1}) = f(x_{j+1})$ for $j=0,\dots,n-1$.
+        \item $S_j'(x_{j+1})=S_{j+1}'(x_{j+1})$ for $j=0,\dots,n-1$.
+        \item $S_j''(x_{j+1})=S_{j+1}''(x_{j+1})$ for $j=0,\dots,n-1$.
+        \item One of the following set of boundary conditions are satisfied
+        \begin{enumerate}
+            \item $S''(x_0)=S''(x_n)= 0$ \defi{natural boundary}.
+            \item $S'(x_0)=f'(x_0)$ and $S'(x_n)=f'(x_n)$ \defi{clamped boundary}.
+            \item $S(x_0) =S(x_n)$, $S'(x_0)=S'(x_n)$ and $S''(x_0)=S''(x_n)$ \defi{cyclic boundary}.
+        \end{enumerate}
+    \end{enumerate}
+\end{definition}
+
+
+\begin{remark}
+    A general cubic polynomial involves four constants, so there is sufficient flexibility in the cubic spline to ensure that the interpolant is not only continuously differentiable but also has a continuous second derivative. However, this does not mean that the derivatives of the interpolant agree with those of the function it is approximating, even at the nodes.
+\end{remark}
+
+
+\begin{method} (Algorithm for Natural Cubic Spline)
+    The idea to find the splines is to create and solve a system of equations for the coefficients of each $S_j$. If done by brute force the system ends up being to complicated. Developing a systematic procedure for determining the formula for a natural cubic spline, given a table of interpolating values is the objective of this method. For simplicity, let us rename the values $f(x_j)$ as $y_j$. The trick will be to rewrite each $S_j$ in a way that the coefficients are obtained easily.\par
+    Since $S''$ is continuous, the numbers 
+        $$z_j = S''(x_j)$$
+    are unambiguously defined. We do not yet know the values $z_1,z_2,\dots,z_{n-1}$, but we know $z(x_0)=z(x_n)=0$.\par
+    On the interval $[x_j,x_{j+1}]$, $S_j''(x)$ is a linear polynomial that takes the values $z_j$ and $z_{j+1}$ at the endpoints. Thus,
+        $$S''(x_j)=\frac{z_{j+1}}{h_j}(x-x_j)+ \frac{z_{j}}{h_j}(x_{j+1}-x),$$
+    where $h_j= x_{j+1}-x_j$. Integrating twice we get $S_j$ as 
+        $$S_j(x) = \frac{z_{j+1}}{6h_j}(x-x_j)^3 + \frac{z_{j}}{6h_j}(x_{j+1}-x)^3 + cx + d.$$
+    By adjusting the integration constants, we obtain a form that is easier to work with 
+        $$S_j(x) = \frac{z_{j+1}}{6h_j}(x-x_j)^3 + \frac{z_{j}}{6h_j}(x_{j+1}-x)^3 + C_j(x-x_j) + D_j(x_{j+1}-x).$$
+    Using $S(x_j) = y_j$, $S(x_{j+1})=y_{j+1}$ we can find the values $C_j$ and $D_j$. 
+    \begin{align} \label{spline formula 1}
+        \nonumber S_j(x) = &\frac{z_{j+1}}{6h_j}(x-x_j)^3 + \frac{z_{j}}{6h_j}(x_{j+1}-x)^3 \\
+        &+ \left(\frac{y_{j+1}}{h_j}-\frac{h_j}{6}z_{j+1}\right)(x-x_j) + \left(\frac{y_{j}}{h_j}-\frac{h_j}{6}z_{j}\right)(x_{j+1}-x).
+    \end{align}
+    Differentiating, 
+        $$S_j'(x) = \frac{z_{j+1}}{2h_j}(x-x_j)^2 - \frac{z_{j}}{2h_j}(x_{j+1}-x)^2 
+        + \frac{y_{j+1}}{h_j}-\frac{h_j}{6}z_{j+1} - \frac{y_{j}}{h_j}+\frac{h_j}{6}z_{j}.$$
+    By using $S_{j-1}'(x_j) = S_j'(x_j)$ we obtain
+        $$h_{j-1}z_{j-1}+2(h_{j-1}+h_j)z_j + h_jz_{j+1} = 6 (b_j - b_{j-1}),$$
+    where 
+        $$b_j := (y_{j+1}-y_j)/h_j.$$ 
+    By letting 
+    \begin{align*}
+        u_j := 2(h_{j-1}+h_j)\\
+        v_j := 6(b_j - b_{j-1}),
+    \end{align*}
+    we obtain the tridiagonal system of equations
+    \begin{align*}
+        \begin{cases}
+            z_0 = 0 \\
+            h_{j-1}z_{j-1}+u_j z_j+h_j z_{j+1} =v_j \text{ for } 1\leq j\leq n-1\\
+            z_n = 0
+        \end{cases}
+    \end{align*}
+    to be solved for the $z_j's$. In matrix notation it would be 
+    \begin{equation*}
+        \left[\begin{array}{cccccc}
+        1 & 0 & & & & \\
+        h_{0} & u_{1} & h_{1} & & & \\
+        & h_{1} & u_{2} & h_{2} & & \\
+        & & \ddots & \ddots & \ddots & \\
+        & & & h_{n-2} & u_{n-1} & h_{n-1} \\
+        & & & & 0 & 1
+        \end{array}\right]\left[\begin{array}{l}
+        z_{0} \\
+        z_{1} \\
+        z_{2} \\
+        \vdots \\
+        z_{n-1} \\
+        z_{n}
+        \end{array}\right]=\left[\begin{array}{l}
+        0 \\
+        v_{1} \\
+        v_{2} \\
+        \vdots \\
+        v_{n-1} \\
+        0
+        \end{array}\right].
+    \end{equation*}
+    Or eliminating the first and last equation, 
+    \begin{equation} \label{spline_system}
+        \left[\begin{array}{ccccc}
+        u_{1} & h_{1} & & & \\
+        h_{1} & u_{2} & h_{2} & & \\
+        & \ddots & \ddots & \ddots & \\
+        & & h_{n-3} & u_{n-2} & h_{n-2} \\
+        & & & h_{n-2} & u_{n-1}
+        \end{array}\right]\left[\begin{array}{l}
+        z_{1} \\
+        z_{2} \\
+        \vdots \\
+        z_{n-2} \\
+        z_{n-1}
+        \end{array}\right]=\left[\begin{array}{l}
+        v_{1} \\
+        v_{2} \\
+        \vdots \\
+        v_{n-2} \\
+        v_{n-1}
+        \end{array}\right]
+    \end{equation}
+    Once we know the $z_j's$ we can find the $S_j$ for $j=0,\dots,n-1$ using \eqref{spline formula 1}. 
+\end{method}
+
+\begin{remark}(Evaluating the polynomials $S_j$)
+    Notice that \eqref{spline formula 1} is not in the preferred form for evaluating a polynomial of degree 3. We would like instead to have 
+        $$S_j(x) = a_j + b_j (x-x_j) + c_j(x-x_j)^2 + d_j(x-x_j)^3.$$
+    In order to find these coefficients we can use Taylors expansion of $S_j$ about the point $x_j$. Hence, 
+        $$a_j = S_j(x_j),\qquad b_j = S_j'(x_j),\qquad c_j = S_j''(x_j)/2,\qquad d_j = S_j'''(x_j)/6 .$$
+    Differentiating \eqref{spline formula 1} and replacing in the above formulas we obtain,
+    \begin{align*}
+        a_j &= y_j\\
+        b_j &= -\frac{h_j}{6}z_{j+1}-\frac{h_j}{3}z_j + \frac{(y_{j+1}-y_j)}{h_j}\\
+        c_j &= \frac{z_j}{2}\\
+        d_j &= \frac{(z_{j+1}-z_j)}{6h_j}
+    \end{align*}
+\end{remark}
+
+
+\begin{algorithm}[h]\caption{Natural Cubic Spline}
+    Compute the the second derivative $z_j$ at the  nodes $x_0,\dots,x_n$ for the cubic natural spline interpolating the values $y_0, \dots, y_n$ at the nodes.\\
+    \KwIn{Numbers $x_0,\dots,x_n$;\newline
+    Values $y_0,\dots,y_n$}
+    \KwOut{Numbers $z_0,\dots,z_n$ where $z_j = S''(x_j)$ for $S$ the natural cubic spline interpolating the points $(x_0,y_0),\dots,(x_n,y_n)$}
+    \For{j=0:n-1}{
+        $h_j = x_{j+1}-x_j$\;
+        $b_j = (y_{j+1}-y_j)/h_j$\;
+    }
+    \For{j=1:n-1}{
+        $u_j = 2(h_{j-1}+h_j)$\;
+        $v_j = 6(b_j-b_{j-1})$
+    }
+    $z_0 = 0$\;
+    $z_n = 0$\;
+    $(z_1,\dots,z_{n-2})$ = Solution of  \eqref{spline_system}\;
+    OUTPUT($z_0,\dots,z_n$)
+\end{algorithm}
+
+
+\begin{algorithm}[H]\caption{Natural Cubic Spline Evaluation}
+    Evaluate  the cubic natural spline interpolating the points $(x_0,y_0),\dots,(x_n,y_n)$ at the value $x$.\\
+    \KwIn{Numbers $x_0,\dots,x_n$;\newline
+    Values $y_0,\dots,y_n$;\newline
+    Values $z_0,\dots,z_n$ from previous algorithm.}
+    \KwOut{$Sx = S(x)$ for $S$ the natural cubic spline interpolating the points $(x_0,y_0),\dots,(x_n,y_n)$}
+    \For{$j=n-1:-1:0$ Step -1}{
+        \If{$x-x_i\geq 0$}{
+            $j = i$\;
+            BREAK\;
+        }
+        
+    }
+    
+    $h = x_{j+1}-x_j$\;
+    $Sx = \frac{(z_{j+1}-z_j)}{6h}(x-x_j) + (z_j/2)$\;
+    $Sx = Sx(x-x_j) + (y_{j+1}-y_j)/h - (h/6)(z_{j+1}+2z_j)$\;
+    $Sx = Sx(x-x_j) + y_j$\;
+    OUTPUT($Sx$)\;
+\end{algorithm}
+
+
+
+
+\hrule 
+
+\begin{exercise} (Adapt algorithm for Clamped and Cyclic splines)
+
+\end{exercise}
+

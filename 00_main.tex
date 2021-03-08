@@ -1,0 +1,53 @@
+\documentclass{book}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amscd, amsopn}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{problem}[theorem]{Problem}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{method}[theorem]{Method}
+\newtheorem{exercise}{Exercise}[section]
+\newtheorem*{note}{Note}
+
+
+\usepackage{graphicx}
+\usepackage{caption}
+
+\usepackage[ruled,vlined]{algorithm2e}
+
+
+\newcommand{\defi}[1]{\textbf{#1}}
+\newcommand{\R}{\mathbb{R}}
+
+
+
+\title{Numerical Analysis}
+
+
+
+\begin{document}
+\input{Round-off Errors and Computer Arithmetic}
+\input{Solutions of Equations in One Variable.tex}
+\input{Interpolation and polynomial approximation}
+\input{Numerical differentiation and integration}
+\input{Numerical Linear Algebra}
+
+
+\input{Questions without answer yet}
+
+
+\input{Assignments}
+\end{document}

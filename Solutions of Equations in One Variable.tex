@@ -1,0 +1,805 @@
+\chapter{Solutions of Equations in One Variable}
+\newpage
+
+\section{Bisection}\label{Bis_Sec}
+
+\begin{problem} The goal of this section is to provide a method for finding zeros of functions.  
+\end{problem}
+
+\begin{definition} (Root or zero of a function) We say that $p$ is a \defi{zero} or \defi{root} of a function $f$ if $f(p) = 0$.
+\end{definition}
+
+\begin{method} (Bisection Method) Suppose $f:[a,b]\to \R$ is a continuous function with $f(a)$ and $f(b)$ of opposite sign. The Intermediate Value Theorem implies that there is a root $p$ of $f$ in $(a,b)$. To approximate it, we create a sequence $\{p_n\}_{n=1}^\infty$ that tends to $p$ by halving the interval $[a,b]$ and, at each step, locating the half containing $p$.\par
+Specifically, we set $a_1 = a$ and $b_1=b$. Then, we take $p_1 = (a_1+b_1)/2$ to be the midpoint of $[a_1,b_1]$. 
+If $f(p_1) = 0$ then we stop. Otherwise,  if $f(p_1)$ and $f(a_1)$ have the same sign, we choose $[p_1,b_1]$ as the new interval, setting $a_2= p_1$ and $b_2=b_1$. If instead, $f(p_1)$ and $f(a_1)$ have opposite sign, we choose $[p_1,b_1]$ as the new interval, setting $a_2= a_1$ and $b_2=p_1$. In both situations $p_2 = (a_2 + b_2)/2$. We repeat this process for the new interval until we reach a desired accuracy.
+\end{method}
+
+
+\begin{algorithm}[H]\caption{Bisection Method}
+    \KwIn{Endpoints $a$, $b$;\newline
+    Tolerance TOL;\newline Maximum number of iterations NMax;}
+    \KwOut{Approximate solution $p$ or message of failure;}
+    
+    \For{i=1:NMax}{
+        $p = a + (b-a)/2$\;
+        \uIf{$f(p)=0$ or $(b-a)/2 < TOL$}{
+            OUTPUT($p$)\;
+            STOP\;
+            }
+        \uElseIf{$sign(f(a))\cdot sign(f(p)) <0$}{
+            $b=p$\;
+            }
+        \Else{
+            $a=p$\;
+        }
+    }
+    OUTPUT(`Method reached maximum iterations')
+\end{algorithm}
+
+\begin{theorem} 
+    (Error Estimation and Convergence in Bisection Method) Suppose that $f\in C[a,b]$ and $f(a)\cdot f(b)<0$. The Bisection Method generates a sequence $\{p_n\}_{n=1}^\infty$ approximating a zero $p$ of $f$ with 
+    \begin{equation}
+        |p_n-p|\leq \frac{b-a}{2^n}, \qquad n\geq 1.
+    \end{equation}
+\end{theorem}
+\begin{proof}
+    For each $n \geq 1$, we have
+    \begin{equation*}
+        b_n - a_n =  \frac{1}{2^{n-1}}
+(b - a) \qquad \text{and } p \in (a_n, b_n).
+    \end{equation*}
+    Since $p_n = (a_n + b_n)/2$ for all $n \geq 1$, it follows that
+    \begin{equation*}
+        |p_n-p|\leq \frac{b_n-a_n}{2}\leq \frac{b-a}{2^n}
+    \end{equation*}
+\end{proof}
+
+\begin{example} (Finding error bounds) Find a bound on the number of iterations needed to achieve an approximation with accuracy $10^{-4}$ to the solution of $x^3-x-1=0$ lying in the interval $[1,2]$. Find an approximation to the root with this degree of accuracy.
+\end{example}
+
+\hrule
+
+\begin{exercise}\label{Bis_Ex1}
+    Find a bound for the number of iterations needed to find an approximation to $\sqrt[3]{25}$ correct to within $10^{-4}$ using the Bisection Algorithm. Find such approximation and plot the sequence given by the algorithm.
+\end{exercise}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\section{Fixed-Point Iteration}
+
+\begin{problem} The goal of this section is to provide a method for finding fixed points of functions.  And relate fixed points with zeros of functions.
+\end{problem}
+
+\begin{definition} (Fixed point of a function)
+    We say that $p$ is a \defi{fixed point} of a function $g$ if $g(p)=p$.
+\end{definition}
+
+\begin{remark} (Graphical Interpretation of Fixed Point)
+    \begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.5]{Graph fixed point.png}
+    \end{figure}
+\end{remark}
+
+\begin{lemma} (Equivalence between Root-Finding and Fixed-Point problems) 
+    \begin{enumerate}
+        \item Given a root-finding problem $f(p)=0$, we can define functions $g$ with a fixed point at $p$ in a number of ways, for example 
+            $$g(x) = x-f(x), \qquad \text{or} \qquad g(x) = x-\phi(x)f(x), $$
+        with $\phi(x) \neq 0$ for all $x$.
+        \item Conversely, if the function $g$ has a fixed point at $p$, then the function defined by 
+            $$f(x) = x-g(x)$$ 
+        has a zero at $p$.
+    \end{enumerate}
+\end{lemma}
+
+\begin{theorem} \label{EaUoFP} (Existence and Uniqueness of Fixed Points) 
+    \begin{enumerate}
+        \item If $g\in C[a,b]$ and $g(x)\in [a,b]$ for all $x\in [a,b]$, then $g$ has at least one fixed point in $[a,b]$.
+        \item If, in addition, $g'(x)$ exists on $(a,b)$ and there is a positive constant $k<1$ with 
+            $$ |g'(x)|\leq k, \text{ for all } x\in(a,b),$$
+        then there is exactly one fixed point in $[a,b]$.
+    \end{enumerate}
+    
+    \begin{figure}[h]\caption*{Graphical intuition}
+        \centering
+        \includegraphics[scale=0.5]{Graph existence and uniqueness fixed point.png}
+    \end{figure}
+    
+    
+    
+\end{theorem}
+    
+    
+    
+\begin{proof}\
+    \begin{enumerate}
+        \item If $g(a) = a$ or $g(b) = b$, then $g$ has a fixed point at an endpoint. If not, then $g(a) > a$ and $g(b) < b$. The function $h(x) = g(x) - x$ is continuous on $[a, b]$, with
+        \begin{equation*}
+            h(a) = g(a) - a > 0 \qquad \text{ and } \qquad h(b) = g(b) - b < 0.    
+        \end{equation*}
+        The Intermediate Value Theorem implies that there exists $p \in (a, b)$ for which $h(p) = 0$. This number $p$ is a fixed point for $g$ since
+        \begin{equation*}
+            0 = h(p) = g(p) - p \qquad \text{implies that } g(p) = p.            
+        \end{equation*}
+
+        \item Suppose, in addition, that $|g'(x)| \leq k < 1$ and that $p$ and $q$ are both fixed points in $[a, b]$. If $p = q$, then the Mean Value Theorem implies that a number $\xi$ exists between $p$ and $q$, and hence in $[a, b]$, with
+        \begin{equation*}
+            \frac{g(p)-g(q)}{p-q}=g'(\xi).
+        \end{equation*}
+        Thus, 
+        \begin{equation*}
+            |p - q| = |g(p) - g(q)| = |g'(\xi)||p - q| \leq k|p - q| < |p - q|,
+        \end{equation*}
+        which is a contradiction. This contradiction must come from the only supposition, $p= q$. Hence, $p = q$ and the fixed point in $[a, b]$ is unique.
+    \end{enumerate}    
+\end{proof}
+
+\begin{method}(Fixed Point Iteration or Functional Iteration)
+    To approximate the fixed point of a function $g$, we choose an initial approximation $p_0$ and generate the sequence $\{p_n\}_{n=0}$ by letting $p_n=g(p_{n-1})$, for $n\geq 1$. Notice that if the sequence converges to $p$ and $g$ is continuous then $p$ is automatically a fixed point of $g$, since
+        $$ p=\lim_{n\to\infty} p_n = \lim_{n\to\infty}g(p_{n-1}) = g\left(\lim_{n\to\infty}p_{n-1}\right) = g(p). $$
+    
+\end{method}
+
+\begin{algorithm}[H]\caption{Fixed-Point or Functional Iteration Algorithm} 
+    \KwIn{Initial approximation $p_0$; \newline Tolerance TOL;\newline Maximum number of iterations $NMax;$}
+    \KwOut{Approximate solution $p$ or message of failure;}
+    $p=p_0$\;
+    \For{i= 1:NMax}{
+        $p=g(p)$\;
+        \If{$|p-g(p)|<TOL$}{
+        OUTPUT(p)\;
+        STOP\;
+        }
+    }
+    OUTPUT(`Method reached maximum iterations')
+\end{algorithm}
+
+\begin{remark} (Stopping Criteria)
+    Notice that in general when we are looking for the limit $p$ of a sequence $p_n$ numerically, we do not now the value $p$ a priori. Therefore, we must choose a \defi{stopping criteria} that will somehow guarantee that the error on our approximation is within a certain tolerance. From a theoretical point of view, one could know that error by using the theorems that guarantee convergence of the method proposed. In a lot of applications, verifying those hypotheses is rather impractical and more experimental stopping procedures are used instead. Some common ones are 
+    
+    \begin{enumerate}
+        \item[a)] $|p_n - p_{n-1}|< TOL$
+        \item[b)] $\frac{|p_n - p_{n-1}|}{|p_n|}< TOL$
+        \item[c)] $|g(p_n)-p_n|< TOL$ \qquad (Particular to fixed point problems).
+    \end{enumerate}
+    
+    Unfortunately, difficulties can arise using any of the stopping criterias. See for example Exercise \ref{SoEiOV_Ex3}.
+\end{remark}
+
+\begin{theorem} \label{CoFPIA}(Convergence of Fixed-Point Iteration Algorithm) 
+    Let $g\in C[a,b]$ be such that $g(x)\in [a,b]$, for all $x\in [a,b]$. Suppose, in addition, that $g'$ exists on $(a,b)$ and that there is a constant $0<k<1$ such that 
+        $$|g'(x)|\leq k, \qquad \text{for all } x\in (a,b).$$
+    Then, for any number $p_0 \in [a,b]$, the sequence defined by 
+        $$p_n = g(p_{n-1}), \qquad n\geq 1,$$
+    converges to the unique fixed point $p\in[a,b]$.
+\end{theorem}
+
+\begin{proof}
+    Theorem \ref{EaUoFP} implies that a unique fixed point exists in $[a, b]$. Since $g$ maps $[a, b]$ into itself, the sequence $\{p_n\}_{n=0}^\infty$ is defined for all $n \geq 0$, and $p_n \in [a, b]$ for all $n$. Using the Mean Value Theorem and the fact that $|g'(x)| \leq k$, we have, for each $n$,
+    \begin{equation*}
+        |p_n - p| = |g(p_{n-1}) - g(p)| = |g'(\xi_n)||p_{n-1} - p| \leq k|p_{n-1} - p|,
+    \end{equation*}
+    where $\xi_n\in(a,b)$. Applying this inequality inductively gives
+    \begin{equation}\label{2.4Burden}
+        |p_n - p| \leq k|p_{n-1} - p| \leq k^2|p_{n-2} - p| \leq  \ldots \leq k^n|p_0 - p|.
+    \end{equation}
+    Since $0 < k < 1$, we have $\lim_{n\to\infty} k^n = 0$ and 
+    \begin{equation*}
+        \lim_{n\to\infty}|p_n - p| \leq \lim_{n\to\infty}k^n|p_0 - p| = 0.
+    \end{equation*}
+    Hence, $\{p_n\}_{n=0}^\infty$ converges to $p$. 
+\end{proof}
+
+
+\begin{theorem} (Error bounds and rate of convergence of Fixed-Point Iteration Algorithm)
+    Let $g\in C[a,b]$ be such that $g(x)\in [a,b]$, for all $x\in [a,b]$. Suppose, in addition, that $g'$ exists on $(a,b)$ and that there is a constant $0<k<1$ such that 
+        $$|g'(x)|\leq k, \qquad \text{for all } x\in (a,b).$$ 
+    Then, bounds for the error involved in using $p_n$ to approximate $p$ are given by
+    \begin{equation*}
+        |p_n-p|\leq k^n\max\{p_0-a,b-p_0\}
+    \end{equation*}
+    and 
+    \begin{equation*}
+        |p_n-p|\leq\frac{k^n}{1-k}|p_1-p_0|
+    \end{equation*}
+    for $n\geq 1$.
+\end{theorem}
+
+\begin{proof}
+    Since $p \in [a, b]$, the first bound follows from Inequality \eqref{2.4Burden}:
+    \begin{equation*}
+        |p_n - p| \leq  k^n|p_0 - p|\leq k^n\max\{p_0-a,b-p_0\}.
+    \end{equation*}
+    For $n \geq 1$, the procedure used in the proof of Theorem \ref{CoFPIA} implies that
+    \begin{equation*}
+        |p_{n+1}-p_n| =|g(p_n)-g(p_{n-1})|\leq k|p_{n-1} - p_{n-2}| \leq   \ldots \leq k^n|p_1 - p_0|.
+    \end{equation*}
+    Thus, for $m>n\geq 1$,
+    \begin{align*}
+        |p_m-p_n|&=|p_m-p_{m-1}+p_{m-1}-\ldots +p_{n+1}-p_n|\\
+        &\leq |p_m-p_{m-1}|+|p_{m-1}-p_{m-2}|+\ldots +|p_{n+1}-p_n|\\
+        &\leq k^{m-1}|p_1-p_0|+k^{m-2}|p_1-p_0|+\ldots+k^n|p_1-p_0|\\
+        &=k^n|p_1-p_0|(1+k+k^2+\ldots+k^{m-n-1}).
+    \end{align*}
+    By Theorem \ref{CoFPIA} $\lim_{m\to\infty}p_m=p$, so
+    \begin{align*}
+        |p-p_n|&=\lim_{m\to\infty}|p_m-p_n|\\
+        &\leq \lim_{m\to\infty}k^n|p_1-p_0|\sum_{j=0}^{m-n-1}k^j\\
+        &\leq k^n|p_1-p_0|\sum_{j=0}^{\infty}k^j
+    \end{align*}
+    But $\sum_{j=0}^{\infty}k^j$ is a geometric series with ratio $k$ and $0 < k < 1$. This sequence converges to $1/(1 - k)$, which gives the second bound:
+    \begin{equation*}
+        |p-p_n|=\frac{k^n}{1-k}|p_1-p_0|.
+    \end{equation*}
+\end{proof}
+
+
+
+
+
+
+\begin{example} (Existence of fixed point) For the equation $x-\cos(x) = 0$. Propose a fixed point problem. Determine an interval $[a,b]$ on which the fixed-point iteration will converge. (i) Estimate the number of iterations necessary to obtain approximations accurate to within $10^{-5}$, and (ii) Perform the iterations.
+\end{example}
+
+%\begin{example} (Finding error bounds)
+
+%\end{example}
+
+\hrule
+
+\begin{exercise}
+    Find a bound for the number of iterations needed to find an approximation to $\sqrt[3]{25}$ correct to within $10^{-4}$ using the Fixed Point Iteration Algorithm. Find such approximation and plot the sequence given by the algorithm. Compare your result and number of iterations with the answer obtained in Exercise \ref{Bis_Ex1}.
+\end{exercise}
+
+\begin{exercise} \label{FPex}
+    For each of the following equations, determine an interval $[a,b]$ on which the fixed-point iteration will converge. (i) Estimate the number of iterations necessary to obtain approximations accurate to within $10^{-5}$, and (ii) Perform the iterations.
+    \begin{itemize}
+        \item[a)] $2+\sin(x) - x = 0$
+        \item[b)] $x^3-2x-5 = 0$
+        \item[c)] $3x^2-e^x=0$
+    \end{itemize}
+\end{exercise}
+
+\begin{exercise} \label{SoEiOV_Ex3}
+    Let $\{p_n\}$ be the sequence defined by $p_n=\sum_{k=1}^\infty \frac{1}{k}$. Show that $\{p_n\}$ diverges even though $\lim_{n\to \infty} (p_n-p_{n-1}) = 0$. Explain how this implies that the stopping criteria $|p_n-p_{n-1}|< TOL$ may fail when looking for an approximation of $p = \lim_{n\to \infty} p_n$. How this relates with the concepts of this section?
+\end{exercise}
+
+
+
+
+\begin{exercise}
+    Let $g\in C^1[a,b]$ and $p\in(a,b)$ with $g(p)=p$ and $|g'(p)|>1$. Show that there exists a $\delta >0$ such that if $0<|p_0-p|<\delta$, then $|p_0-p|<|p_1-p|$. Thus, no matter how close the initial approximation $p_0$ is to $p$, the next iterate $p_1$ is farther away, so the fixed point iteration does not converge if $p_0\neq p$.
+\end{exercise}
+
+\begin{exercise}\
+    \begin{enumerate}
+        \item[a)] Show that Theorem \ref{EaUoFP} is true if the inequality $|g'(x)|\leq k$ is replaced by $g'(x)\leq k$, for all $x\in (a,b)$.
+        \item[a)] Show that Theorem \ref{CoFPIA} may not hold if the inequality $|g'(x)|\leq k$ is replaced by $g'(x)\leq k$, for all $x\in (a,b)$.
+    \end{enumerate}
+    
+\end{exercise}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\section{Newton's Method}\label{Sec_NeMe}
+
+\begin{problem} 
+    Finding zeros functions using linear approximations. 
+\end{problem}
+
+\begin{method} (Newton's Method)
+    If we have a linear function of the form $L(x) = a(x-x_0)+b$ it is very easy to find its root just by setting the function equal to zero and solving for $x$. That is, 
+        \begin{align*}
+            0 &= L(x) = a(x-x_0)+b,\\
+            x &= -b/a + x_0.
+        \end{align*}
+    For a general function $f$ sometimes it is not possible to solve for $x$. Nevertheless, if we could find a good linear approximation of $f$ by a linear function, it may be expected that the zero of the approximation and the original function will be close. That is the key idea of Newton's Method.\par
+    
+    Now let us formalize this a little bit. Let $f\in C^2[a,b]$, let $p$ be a solution of $f(x)=0$, and let $p_0$ be any point in $[a,b]$ with $f'(p_0)\neq 0$. Consider the first order Taylor polynomial of $f$ around $p_0$,
+        \begin{equation*}
+            f(x) = f(p_0) + f'(p_0)(x-p_0) + \frac{f''(\xi(p))}{2}(x-p_0)^2,
+        \end{equation*}
+    where $\xi(p)$ lies between $p_0$ and $x$. For $p_0$ sufficiently close to $x$ the second degree term is negligible respect to the first one and can be discarded. So,     
+        \begin{equation*}
+            f(x) \approx f(p_0) + f'(p_0)(x-p_0). 
+        \end{equation*}
+    Now, to find a root of $f$ we could just set 
+        \begin{align*}
+            0 = f(p) &\approx f(p_0) + f'(p_0)(p-p_0),\\
+            p &\approx p_1 := p_0 -\frac{f(p_0)}{f'(p_0)}.   
+        \end{align*}
+    This sets the stage for Newton's Method which starts with an initial approximation $p_0$ and generates a sequence $\{p_n\}_{n=0}^\infty$ as 
+        \begin{equation}\label{NeMe_it_form}
+            p_n = p_{n-1} - \frac{f(p_{n-1})}{f'(p_{n-1})}.
+        \end{equation}
+    Notice that for this approximation to work, it is necessary that $p_0$ is somehow close to $p$ so a good initial approximation to the root is necessary.\newpage A graphical representation of Newton's method is as follows,
+        \begin{figure}[h]
+            \centering
+             \includegraphics[scale=0.5]{Graph Newtons Method.png}\
+        \end{figure}
+        
+        
+    Notice from (\ref{NeMe_it_form}) that Newton's Method could also be framed as a \textbf{fixed point iteration method} for the function 
+        \begin{equation*}
+            g(x) = x - \frac{f(x)}{f'(x)}.
+        \end{equation*}
+\end{method}
+
+\begin{algorithm}[H] \caption{Newton's Method}
+    To find a solution of $f(x)=0$ using successive linear approximations.\\
+    \KwIn{Initial approximation $p_0$;\newline 
+    Tolerance TOL;\newline Maximum number of iterations NMax;}
+    \KwOut{Approximate solution $p$ or message of failure.}
+    \For{i=1:Nmax}{
+        $p = p_0 - f(p_0)/f'(p_0)$\;
+        \If{$|p-p_0|<$TOL}{
+            OUTPUT($p$)\;
+            STOP\;
+        }
+        $p_0 = p$\;
+    } 
+    OUTPUT (`Method could not reach the desired accuracy in NMax iterations');
+\end{algorithm}
+
+\begin{remark} (Stopping Criteria)
+    Notice that in general when we are looking for the limit $p$ of a sequence $p_n$ numerically, we do not now the value $p$ a priori. Therefore, we must choose a \defi{stopping criteria} that will somehow guarantee that the error on our approximation is within a certain tolerance. From a theoretical point of view, one could know that error by using the theorems that guarantee convergence of the method proposed. In a lot of applications, verifying those hypotheses is rather impractical and more experimental stopping procedures are used instead. Some common ones are 
+    
+    \begin{enumerate}
+        \item[a)] $|p_n - p_{n-1}|< TOL$
+        \item[b)] $\frac{|p_n - p_{n-1}|}{|p_n|}< TOL$
+        \item[c)] $|f(p_n)|< TOL$ \qquad (Particular to root-finding problems).
+    \end{enumerate}
+    
+    Unfortunately, difficulties can arise using any of the stopping criterias. See for example Exercise \ref{NeMe_Ex2}.
+\end{remark}
+
+
+
+\begin{theorem} (Convergence of Newton's Method)
+    Let $f \in C^2[a, b]$. If $p \in [a, b]$ is such that $f (p) = 0$ and $f'(p)\not= 0$, then there exists a $\delta>0$ such that Newton’s method generates a sequence $\{p_n\}_{n=1}^\infty$converging to $p$ for any initial approximation $p_0 \in [p -\delta, p +\delta]$.
+\end{theorem}
+
+\begin{proof}
+    The proof is based on analyzing Newton’s method as the functional iteration scheme $p_n = g(p_{n-1})$, for $n \geq 1$, with
+    $$g(x)=x-\frac{f(x)}{f'(x)}.$$
+    First we enunciate two claims that we will use in the proof.\par
+    {\bf CLAIM:} {\it (Some consequences of continuity) 
+    \begin{enumerate}
+        \item If $h_1$ is a continuous function defined on an interval $[a,b]$ such that $h_1(p)\not =0$ for some $p\in(a,b)$, then there exists $\delta>0$ such that $h_1(x)\not=0$ for all $x\in[p-\delta,p+\delta]\subset [a,b]$.
+        \item Let $k\in(0,1)$. If $h_2$ is a continuous function defined on an interval $[a,b]$ such that $h_2(p) =0$ for some $p\in(a,b)$, then there exists $\delta>0$ such that $|h_2(x)|<k$ for all $x\in[p-\delta,p+\delta]\subset [a,b]$.
+    \end{enumerate}
+    }
+    Graphically these can be remember as,
+    \begin{figure}[h]
+        \centering
+        \includegraphics[scale=0.75]{Graph continuity claim.png}
+    \end{figure}   
+    
+    
+    Now, using this results, if we set $h_1=f'$ in the claim we obtain that there exists $\delta_1>0$ which guarantees that $g$ is well defined and $C^1$ on the interval $[p-\delta_1,p+\delta_1]$.
+    Also,
+    $$g'(x)=1-\frac{f'(x)f'(x)-f(x)f''(x)}{[f'(x)]^2}=\frac{f(x)f''(x)}{[f'(x)]^2}$$
+    for $x\in[p-\delta,p+\delta]$.
+    
+    By assumption, since $f(p)=0$, we have $g(p)=p$, and also $g'(p)=0$. Fixed $k\in (0,1)$, since $g'$ is continuous, taking $h_2=g'$ in the claim, there exists $0<\delta<\delta_1$ such that \begin{equation*}
+        |g'(x)|<k \qquad \text{ for all } x\in [p-\delta,p+\delta].
+    \end{equation*} 
+    Therefore, by using the Mean Value Theorem, we have
+    \begin{equation*}
+        |g(x) - p| = |g(x) - g(p)| \leq k|x - p| < |x - p|.
+    \end{equation*}
+    That holds for every $x\in [p-\delta,p+\delta]$, so it follows that $|x- p| < \delta$ and that $|g(x) - p| < \delta$. Hence, $g$ maps $[p-\delta,p+\delta]$ into itself.
+    
+    All the hypotheses of the Fixed-Point Theorem are now satisfied, so the sequence
+    $\{p_n\}_{n=1}^\infty,$, defined by 
+        $$p_n = g(p_{n−1}) = p_{n-1} -\frac{f(p_{n-1})}{f'(p_{n-1})} \qquad \text{ for } n\geq 1,$$
+    converges to $p$ for any $p_0\in [p -\delta, p +\delta]$.
+\end{proof}
+
+\begin{remark} (Speed of convergence) 
+    If we check carefully the proof of the theorem we can notice that if $p_0\in [p-\delta,p+\delta]$, then
+        $$|p_n-p|=|g(p_{n-1})-p|<k|p_{n-1}-p|,$$
+    with $k<1$ depending on the values of $g'$ near $p_{n-1}$. Since $p_n\to p$ and $g'(p) = 0$, we can infer that $k$ will be smaller and smaller. Therefore, the method's convergence speed should be increasing in every iteration. What you think would happen if we remove the hypothesis $f'(p) \neq 0$? (See Exercise \ref{NeMe_Ex3})\par
+    Notice that from a fixed point iteration scheme, having a function $g$ with $g'(p)=0$ at the fixed point is ideal since it makes $k$ very small near the point accelerating convergence.
+\end{remark}
+
+\begin{remark} \label{NeMe_remark1} (If a fixed point exists we only have to check the derivative to have convergence.)
+    Again, by carefully inspecting the proof, one can deduce something that is applicable to any fixed point iterative method. If we know beforehand that $g$ has a fixed point $p$ with $|g'(p)|<k<1$ (and assuming the same smoothness hypotheses as the theorem) then there is an interval $[p-\delta,p+\delta]$ such that the fixed point iteration scheme $p_n=g(p_{n-1})$ will converge. Can you properly enunciate this result and prove it?
+\end{remark}
+
+\begin{problem}
+    What happens when we do not have information about the derivative of a function or when it is too expensive to compute it?
+\end{problem}
+
+\begin{method} (Secant method)
+    To circumvent the problem of the derivative evaluation in Newton's method, we introduce a slight variation. By definition, 
+        $$f'(p_{n-1})= \lim_{x\to p_{n-1}}\frac{f(x)-f(p_n-1)}{x-p_{n-1}}.$$
+    If $p_{n-2}$ is close to $p_{n-1}$, then 
+        $$f'(p_{n-1}) \approx \frac{f(p_{n-2}) - f(p_{n-1})}{p_{n-2}-p_{n-1}}.$$
+    Using this approximation for $f'(p_{n-1})$ in Newton's formula gives 
+        $$p_n = p_{n-1} - \frac{f(p_{n-1})(p_{n-2}-p_{n-1})}{f(p_{n-2}) - f(p_{n-1})}.$$
+    This method is called the \defi{Secant Method} because the approximation $p_n$ is the $x$-intercept of the secant line to the graph of $f$ passing through the points $(p_{n-1},f(p_{n-1}))$ and $(p_{n-2},f(p_{n-2}))$. 
+\end{method}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.65]{Graph Secant.png}
+\end{figure}   
+
+\begin{algorithm}[H] \caption{Secant Method}
+    To find a solution of $f(x)=0$ using successive linear approximations without requiring to know the derivative of $f$.\\
+    \KwIn{Two initial approximations $p_0, p_1$;\newline 
+    Tolerance TOL;\newline Maximum number of iterations NMax;}
+    \KwOut{Approximate solution $p$ or message of failure.}
+    $q_0 = f(p_0)$\;
+    $q_1 = f(p_1)$\; 
+    \For{i=2:Nmax}{
+        $p = p_0 - q_1(p_1-p_0)/(q_1-q_0)$ \tcp*{Compute $p_i$} 
+        \If{$|p-p_1|<$TOL}{
+            OUTPUT($p$)\tcp*{The method was successful}
+            STOP\;
+        }
+        $p_0 = p_1$\tcp*{Update $p_0,q_0,p_1,q_1$}
+        $p_1 = p$\;
+        $q_0 = q_1$\;
+        $q_1 = f(p_1)$\;
+    } 
+    OUTPUT (`Method could not reach the desired accuracy in NMax iterations')\tcp*{Method failed}
+
+\end{algorithm}
+
+
+\begin{problem}
+    How to guarantee accuracy of the approximation?
+\end{problem}
+
+\begin{method} (False Position)
+    Each successive pair of approximations in the Bisection method brackets a root $p$ of the equation. That is, for each $n$, a root lies between $a_n$ and $b_n$. This implies that for each iteration, the Bisection method satisfies
+        $$|p_n - p| < \frac{|b_n-a_n|}{2}$$
+    which provides an easily calculated error bound for the approximation. \par 
+    This is not guaranteed for Newton's method or the Secant method. See Exercise \ref{NeMe_Ex2}. \par
+    The \defi{method of False Position} generates approximations in the same manner as the Secant method, but it includes a test to ensure that the root is always bracketed between successive iterations. \par
+    First, choose initial approximations $p_0$ and $p_1$ with $f(p_0)\cdot f(p_1) <0$. The approximation $p_2$ is chosen in the same manner as in the Secant method as the $x$-intercept of the line joining $(p_0,f(p_0))$ and $(p_1,f(p_1))$. To decide which secant line to use to compute $p_3$, consider $f(p_2)\cdot f(p_1)$. \par
+    If $f(p_2)\cdot f(p_1)<0$ then $p_1$ and $p_2$ bracket a root. Choose $p_3$ as the $x$-intercept of the line joining $(p_1,f(p_1))$ and $(p_2,f(p_2))$.\par
+    Otherwise,  choose $p_3$ as the $x$-intercept of the line joining $(p_0,f(p_0))$ and $(p_2,f(p_2)$ and then interchange the indices on $p_0$ and $p_1$.\par 
+    Once $p_3$ is found, repeat this process using $p_2$ and $p3$.
+\end{method}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.6]{Graph false position.png}
+\end{figure}  
+
+\begin{algorithm}[H] \caption{False position}
+    To find a solution of $f(x)=0$ given the continuous function $f$ on the interval $[p_0,p_1]$ satisfies $f(p_0)\cdot f(p_1) <0$. The method creates a sequence of linear approximations with secant lines and brackets the root between two successive approximations.\\
+    \KwIn{Initial approximations $p_0$ and $p_1$; \newline Tolerance TOL; \newline Maximum number of iterations $NMax$;}
+    \KwOut{Approximate solution $p$ or message of failure;}
+    $q_0 = f(p_0)$\;
+    $q_1 = f(p_1)$\;
+    \For{i=2 to NMax}{
+        $p = p_1 - q_1(p_1-p_0)/(q_1-q_0)$ \tcp*{Compute $p_i$}
+        \If{$|p-p_1|<$TOL}{
+            OUTPUT($p$) \tcp*{The procedure was successful}
+            STOP\;
+        }
+        $q=f(p)$\;
+        \uIf(\tcp*[f]{Test if root is between $p_1 $ and $p$}){$q\cdot q_1<0$}{
+            $p_0 =p_1$\;
+            $q_0 = q_1$\;
+        }
+        \Else{
+            $p_1 = p$\;
+            $q_1 = q$\;
+        }
+    }
+    OUTPUT('Method failed after NMax iterations') \tcp*{The method was unsuccessful}
+\end{algorithm}
+
+\begin{remark} (Comparison of the methods) 
+    In this section we have seen three different methods to find zeros of functions. Newton's method is usually the fastest of the three. Followed by the Secant. The secant has the advantage over Newton's of not requiring the derivative to be calculated. False position method, although the slowest, is the only that guarantees that a root is always between successive approximations giving an easy estimation of the error. How do you think this methods compare with the Bisection and Fixed point iteration methods? Can you think about the advantages and disadvantages of every approach?
+\end{remark}
+
+\hrule
+
+\begin{exercise}\label{NeME_Ex4}
+    Use the methods seen in this section to find solutions accurate to within $10^{-4}$ of the following problems, 
+    \begin{enumerate}
+        \item[i)] $x^3-2x^2-5 = 0$, $[1,4]$
+        \item[ii)] $x^3+3x^2-1=0$, $[-3,-2]$
+        \item[iii)] $x-0.8-0.2\sin(x) = 0$, $[0,\pi/2]$
+        \item[iv)] $\tan(\pi x) - 6 = 0$, $[-1,1]$.
+    \end{enumerate}
+    Plot and compare the sequence of approximations in each case for the different methods. Which one is better?
+\end{exercise}
+
+\begin{exercise}\label{NeME_Ex1}
+    Find a zero of $f(x) = \cos(x)-x$ using, 
+    \begin{enumerate}
+        \item[i)] Newton's Method
+        \item[ii)] Secant Method
+        \item[iii)] False position Method.
+    \end{enumerate}
+    Plot the sequence of approximations in each case. Show that successive approximations of False position always brackets a root if you start with $p_0,p_1$ satisfying $f(p_0)\cdot f(p_1)<0$. Show that that is not always true for the other two methods. Compare speed of convergence of the three methods. 
+\end{exercise}
+
+
+\begin{exercise}\label{NeMe_Ex3}
+    Use Newton's method to solve the equation 
+        $$0 = \frac{1}{2} + \frac{x^2}{4}-x\sin(x) - \frac{\cos(2x)}{2}, \qquad \text{with } p_0=\frac{\pi}{2}.$$
+    Iterate using Newton's method until a TOL of $10^{-5}$ is reached. Explain why the result seems unusual for Newton's method (Compare the sequence of approximations with other examples). Also, solve the equation with $p_0=5\pi$ and $10\pi$. Can you explain why your results are expected for this problem?
+\end{exercise}
+
+\begin{exercise}\label{NeMe_Ex2}
+    Run Newton's Method for the function $f(x) = e^{-x}$ and a stopping criteria $|f(p_n)|<10^{-10}$ and starting $p_0 = 1$. What can you conclude?
+\end{exercise}
+
+% \begin{exercise}
+%     How to find a good first approximation. 
+% \end{exercise}
+
+% \begin{exercise} 5,7,8 (17,18,23) (Buscar si hay alguno donde se pueda garantizar el error mirando la cota de la derivada de g.) 
+
+% \end{exercise}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\section{Error Analysis for Iterative Methods}
+
+\begin{problem} 
+    How to measure how fast each algorithm is respect to another?
+\end{problem}
+
+\begin{definition}(Order of Convergence of a Sequence)  
+    Suppose that $\{p_n\}_{n=0}^\infty$ is a sequence that converges to $p$, with $p_n\neq p$ for all $n$. If positive constants $\lambda$ and $\alpha$ exist with
+        $$\lim_{n\to \infty}\frac{|p_{n+1}-p|}{|p_n-p|^\alpha} = \lambda,$$
+    then we say that $\{p_n\}_{n=0}^\infty$ \defi{converges to $p$ of order $\alpha$, with asymptotic error constant $\lambda$}.\par
+\end{definition}
+
+\begin{remark}
+    The higher $\alpha$ is, the faster the method will converge. Also, The smaller $\lambda$ is, the faster the method will converge. However, changing $\lambda$ does not modify the speed of convergence as nearly as much as changing $\alpha$.
+\end{remark}
+
+\begin{remark}\label{Err_analisis_Remark1}
+    Note that if a sequence $\{p_n\}_{n=0}^\infty$ is convergent to $p$ of order $\alpha$, then it is convergent of order $\beta$ for all $\beta<\alpha$. \par
+    Also, if $\{p_n\}_{n=0}^\infty$ is convergent to $p$ of order $\alpha$ with $\lambda \neq 0$, then for $\beta>\alpha$ the limit in the previous definition will be $\infty$.
+\end{remark}
+
+\begin{definition}(Order of Convergence of iterative methods) 
+    An iterative method of the form $p_n=g(p_{n-1})$ is said to be of order $\alpha$ if the sequence $\{p_n\}_{n=0}^\infty$ converges to the solution $p=g(p)$ of order $\alpha$.
+\end{definition}
+
+
+\begin{definition} (Special cases of Order of Convergence)
+    \begin{enumerate}
+        \item[i)] If $\alpha = 1$ (and $\lambda <1)$, the sequence is called \defi{linearly convergent}.
+        \item[ii)] If $\alpha = 2$, the sequence is called \defi{quadratically convergent}.
+    \end{enumerate}
+\end{definition}
+
+\begin{example} (Different Orders of Convergence)
+    
+\end{example}
+
+\begin{theorem}\label{Err_analysis_Convergence_theo} (First Theorem of Order of Convergence of Fixed-Point Iteration)  
+    Let $g\in C[a,b]$ be such that $g(x)\in[a,b]$, for all $x\in[a,b]$. Suppose, in addition , that $g'$ is continuous on $(a,b)$ and that a positive constant $k<1$ exists with 
+        $$|g'(x)|\leq k, \text{ for all } x\in (a,b).$$
+    If $g'(p) \neq 0$, then for any number $p_0\neq p$ in $[a,b]$, the sequence 
+        $$p_n = g(p_{n-1}), \text{ for } n\geq 1,$$
+    converges only linearly to the unique fixed point $p\in [a,b]$. 
+\end{theorem}
+
+\begin{proof}   
+    From Theorem \ref{CoFPIA} we know that the sequence converges to $p$. Since $g'$ exists on $(a,b)$, we can apply the Mean Value Theorem to $g$ to show that for any $n$,
+    \begin{equation*}
+        \lim_{n\to\infty}\frac{|p_{n+1}-p|}{|p_n-p|} = \lim_{n\to\infty} |g'(\xi_n)| = |g'(p)|,
+    \end{equation*}
+    where the second equality follows from the continuity of $g'$ and the fact that $\xi_n$ is between $p_n$ and $p$ with $p_n\to p$.
+\end{proof}
+
+
+\begin{theorem}(Second Theorem of Order of Convergence of Fixed-Point Iteration)
+    Let $p$ be a solution of the equation $x=g(x)$. Suppose that $g'(p)=0$ and $g''$ is continuous with $|g''(x)|<M$ on an open interval $I$ containing $p$. Then there exists a $\delta>0$ such that, for $p_0\in[p-\delta,p+\delta]$, the sequence defined by $p_n=g(p_{n-1})$, when $n\geq 1$, converges at least quadratically to $p$. Moreover, for sufficiently large values of $n$, 
+        $$|p_{n+1} - p|<\frac{M}{2}|p_n-p|^2.$$
+\end{theorem}
+
+\begin{proof}
+    By Remark \ref{NeMe_remark1} we know that there is a $\delta$ such that for $p_0 \in [p-\delta,p+\delta]$ the sequence $\{p_n\}_{n=0}^\infty$ converges to $p$. Expanding $g(x)$ in a linear Taylor polynomial centered at $p$ we obtain
+    \begin{align*}
+        g(x) &= g(p) + g'(p)(x-p) + \frac{g''(\xi)}{2}(x-p)^2\\
+        &=p + \frac{g''(\xi)}{2}(x-p)^2.
+    \end{align*}
+    In particular, when $x = p_n$,
+    \begin{align*}
+        p_{n+1}=g(p_n) = p +  \frac{g''(\xi)}{2}(p_n-p)^2.
+    \end{align*}
+    Proceeding as in the proof of Theorem \ref{Err_analysis_Convergence_theo}, we see that
+    \begin{align*}
+        \lim_{n\to\infty}\frac{|p_{n+1}-p|}{|p_n-p|^2} = \lim_{n\to\infty} |g''(\xi_n)|/2 = |g''(p)|/2.
+    \end{align*}
+    Because $g''$ is continuous and strictly bounded by $M$ this also implies that, for sufficiently large $n$, 
+    \begin{align*}
+        |p_{n+1}-p|<\frac{M}{2}|p_n-p|^2.
+    \end{align*}
+    
+\end{proof}
+
+
+\begin{corollary} \label{Err_analysis_conv_newtons}(Convergence of Newton's method)     
+    Let $f\in C^2[a,b]$. If $p\in (a,b)$ such that $f(p)=0$ and $f'(p)\neq 0$, then Newton's method generates a convergent sequence of order at least $2$.
+\end{corollary}
+
+
+
+
+\hrule
+
+\begin{exercise}
+    Prove Remark \ref{Err_analisis_Remark1}.
+\end{exercise}
+
+\begin{exercise}
+    Prove Corollary \ref{Err_analysis_conv_newtons}.
+\end{exercise}
+
+\begin{exercise}
+    Create a function in Matlab that takes as inputs three numbers $\alpha,\lambda, N$ gives back as output  a vector with the first $N$ terms of a sequence convergent to $0$ of  maximum order $\alpha$ and asymptotic error constant $\lambda$.
+\end{exercise}
+
+\begin{exercise}
+    Create a function in Matlab that takes as input the first $N$ terms of a convergent sequence $\{p_n\}$ of maximum order $\alpha$ and a certain tolerance TOL, and returns as output an approximation of $\alpha$ within the desired accuracy. Note: The only input should be the partial sequence given as an array of size $N$.
+    Test your function on the sequences generated by the previous exercise.
+\end{exercise}
+
+\begin{exercise}
+    Use the function of the previous exercise to compute the order of convergence of the sequences obtained from Newton's Method, Secant Method and the False position Method in previous sections.
+\end{exercise}
+
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5%%%%
+
+\section{Multiple roots}
+\begin{problem} 
+    How to modify Newton's method when we want to find a solution $p$ of $f(x)=0$ such that $f'(p) = 0$?
+\end{problem}
+
+\begin{definition}
+    A solution $p$ of $f(x)=0$ is a \defi{zero of multiplicity} $m$ of $f$ if for $x\neq p$, we can write $f(x) = (x-p)^m q(x)$, where $\lim_{x\to p} q(x) \neq 0$. For the special case $m=1$ we say that $f$ has a \defi{simple zero}. \par 
+    In essence, $q(x)$ represents the portion of $f$ that does not contribute to the zero of $f$.
+\end{definition}
+
+\begin{theorem}
+    The function $f\in C^m[a,b]$ has a zero of multiplicity $m$ at $p\in (a,b)$ if and only if 
+    $$0=f(p)=f'(p)=\cdots=f^{(m-1)}(p), \text{ but } f^{(m)}(p) \neq 0.$$
+\end{theorem}
+
+\begin{proof}\ \par 
+    \noindent $\Rightarrow$) Suppose that $f$ has a zero of multiplicity $m$ at $p$. Then, $$f(x) = (x-p)^m q(x), \text{ with } \lim_{x\to p} q(x)\neq 0.$$
+    Using the binomial formula for the derivative of a product we obtain
+    \begin{align*}
+        f^{(n)}(x) &= \sum_{i=0}^n \frac{m!}{(m-i)!}(x-p)^{m-i}q^{(i)}(x), \text{ if } n<m,\\
+        f^{(m)}(x) &= \sum_{i=0}^{m-1} \frac{m!}{(m-i)!}(x-p)^{m-i}q^{(i)}(x) + m! \ q(x).
+    \end{align*}
+    Evaluating this expressions at $x=p$, and using the continuity of $f^{(m)}$  we obtain
+        $$0=f(p)=f'(p)=\cdots=f^{(m-1)}(p), \text{ but } f^{(m)}(p) \neq 0.$$\par
+        
+    \noindent$\Leftarrow$) Using the Taylor polynomial of degree $m-1$ centered at $p$ we have that 
+    \begin{equation*}
+        f(x) = f(p) + f'(p)(x-p) + \cdots + \frac{f^{(m-1)}(p)}{(m-1)!}+ \frac{f^{(m)}(\xi)}{m!}(x-p)^m,
+    \end{equation*}
+    where $\xi$ depends on $x$ with $\xi\to p$ when $x\to p$. Using that the first $m-1$ derivatives are zero and renaming $q(x):=f(\xi(x))/m!$ we can conclude that
+        $$f(x)=q(x)(x-p)^m,$$
+    with 
+        $$ \lim_{x\to p}q(x) =\lim_{x\to p} \frac{f^{(m)}(p)}{m!}\neq 0.$$
+\end{proof}
+
+\begin{lemma}
+    Let $f\in C^1[a,b]$, and let $p\in (a,b)$ a zero of multiplicity $m$ of $f$. Then, $p$ is a simple zero of the function $\mu(x):= f(x)/f'(x)$, where $\mu(p)$ is understood as a the limit $\lim_{x\to p} f(x)/f'(x)$.
+\end{lemma}
+
+\begin{proof}
+    Exercise. Hint: Write $f(x) = (x-p)^m q(x)$ and differentiate.
+\end{proof}
+
+\begin{method}
+    If we want to find the solution $p$ of $f(x)=0$ where $f'(p)=0$, we search instead for a zero of $\mu(x)=f(x)/f'(x)$. In that case, Newton's method iterative step is of the form 
+        $$g(x) = x - \frac{f(x)f'(x)}{[f'(x)]^2-f(x)f''(x)}.$$
+    If $g$ has the required continuity conditions, functional iteration applied to $g$ will be quadratically convergent regardless of the multiplicity of the zero of $f$. Theoretically, the only drawback to this method is the additional calculation of $f''(x)$ and the more laborious procedure of calculating the iterates. In practice, however, multiple roots can cause serious round-off problems because the denominator consist of the difference of two numbers both close to zero.
+\end{method}
+
+\hrule
+
+\begin{exercise}
+    Use Newton's Method to find solutions accurate to within $10^{-5}$ to the following problems.
+    \begin{enumerate}
+        \item[i)] $x^2-2xe^{-x}+e^{-2x} = 0$, for $0\leq x \leq 1$.
+        \item[ii)] $ 1 - 4x \cos(x) + 2x^2 + cos(2x) = 0$, for $0\leq x \leq 1$.
+        \item[iii)] $x^2+6x^5+9x^4-2x^3-6x^2+1=0$, for $-3\leqx\leq -1$.
+        \item[iv)] $\cos(x+\sqrt{2}) + x(x/2 + \sqrt{2}) = 0$, for $-2\leq x \leq -1$.
+    \end{enumerate}
+    Repeat using the modified Newton's method described in this section. Is there any improvement in speed or accuracy?
+\end{exercise}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Accelerating convergence}
+
+
+\begin{method}\label{Aitkensmethod} (Aitken's Method to accelerate convergence of a linear convergent sequence)
+    Suppose we have a sequence $\{p_n\}_{n=1}^\infty$ that approximates a value $p$. When we do not know $p$ a priori, we can think of the differences $ e_n:=(p_{n+1}-p_n)$, $e_{n+1}:=(p_{n+2}-p_{n+1})$ as approximations of the errors at the points $p_n$, $p_{n+1}$ (think about the stopping criteria we have used). Since at $p$ the error is zero we may seek a new approximation $\hat{p}_n$ by extrapolating the errors to zero. That is, we find the $x$-intercept of the line joining the points $(p_n,e_n)$ and $(p_{n+1},e_{n+1})$ obtaining
+    \begin{equation}\label{Aiteq}
+        \hat{p}_n := p_n - \frac{(p_{n+1}-p_n)^2}{p_{n+2}-2p_{n+1}+p_n}.
+    \end{equation}
+    Aitken's Method is based on the assumption that the sequence $\{\hat{p}_n\}$ converges more rapidly to $p$ than does the original sequence. This supposition is justified by the following theorem.
+\end{method}
+
+\begin{theorem} (Acceleration theorem for Aitken's sequence)
+    Suppose that $\{p_n\}_{n=0}^\infty$ is a sequence that converges linearly to the limit $p$ and that 
+        $$\lim_{n\to\infty}\frac{p_{n+1}-p}{p_n-1}<1.$$
+    Then the Aitken's sequence $\{\hat{p}_n\}_{n=0}^\infty$ converges to $p$ faster that $\{p_n\}_{n=0}^\infty$ in the sense that 
+        $$\lim_{n\to \infty}\frac{\hat{p}_n-p}{p_n-p} = 0.$$
+\end{theorem}
+
+
+\begin{method} (Steffenson's Method to accelerate fixed point iterations method)
+    When we apply Aitken's method to a fixed point iteration sequence, we construct the terms in order:
+    \begin{align*}
+        &p_0,\ p_1=g(p_0),\ p_2=g(p_1) \quad &\to  \hat{p}_0\\
+        &p_3 = g(p_2) &\to \hat{p}_1\\
+        &p_4 = g(p_3) &\to \hat{p}_2 \\
+        &\dots
+    \end{align*}
+    Steffensen's method instead construct the same first four terms $p_0$, $p_1$, $p_2$ and $\hat{p}_0$. However, at this step, we assume that $\hat{p}_0$ is a better approximation to $p$ than is $p_2$ and apply fixed point iteration to $\hat{p}_0$ instead of $p_2$. That is, the sequence generated is \begin{align*}
+        &p_0^0,\ p_1^0= g(p_0^0),\ p_2^0 = g(p_1^0) \quad &\to \hat{p}_0^0\\
+        &p_0^1 = \hat{p}_0^0,\ p_1^1= g(p_0^1),\ p_2^1 = g(p_1^1) &\to \hat{p}_0^1\\
+        &\dots
+    \end{align*}    
+\end{method}
+
+\begin{algorithm}[H]
+    \caption{Steffensen's Method}
+    To find a solution $p=g(p)$ given an initial approximation $p_0$\\
+    \KwIn{Initial approximations $p_0$ and $p_1$; \newline Tolerance TOL; \newline Maximum number of iterations $NMax$;}
+    \KwOut{Approximate solution $p$ or message of failure;}
+    
+    \For{i=1 to NMax}{
+        $p_1 = g(p_0)$ \tcp*{Compute $p_1^{i-1}$}
+        $p_2 = g(p_1)$ \tcp*{Compute $p_2^{i-1}$}
+        $p = p_0 - (p_1-p_0)^2/(p_2-2p_1+p_0)$ \tcp*{Compute $p_0^i$}
+        \If{$|p-p_0|<$TOL}{
+            OUTPUT($p$) \tcp*{The procedure was successful}
+            STOP\;
+        }
+        $p_0 = p$\;
+    }
+    OUTPUT('Method failed after NMax iterations') \tcp*{The method was unsuccessful}
+\end{algorithm}
+
+\begin{theorem}(Accelerating convergence of fixed point iteration by Steffensen's Method)
+    Suppose that $x=g(x)$ has the solution $p$ with $g'(p)\neq 1$. If there exists a $\delta>0$ suche that $g\in C^3[p-\delta,p+\delta]$, then Steffensen's method gives quadratic convergence for any $p_0\in[p-\delta,p+\delta]$.
+\end{theorem}
+
+\hrule
+
+\begin{exercise}
+    Show that the $x$-intercept $\hat{p}_n$ of the line joining $(p_n,e_n)$ and $(p_{n+1},e_{n+1})$ in Method \ref{Aitkensmethod} is given by  \eqref{Aiteq}.
+\end{exercise}
+
+\begin{exercise} 
+    Use Steffensen's Method to approximate  solution of the following equations accurate to within $10^{-5}$,
+    \begin{itemize}
+        \item[a)] $2+\sin(x) - x = 0$
+        \item[b)] $x^3-2x-5 = 0$
+        \item[c)] $3x^2-e^x=0$
+    \end{itemize}
+    Compare the sequences obtained with the ones you got using fixed point iteration method in Exercise \ref{FPex}. Which method is faster?
+\end{exercise}
+
+

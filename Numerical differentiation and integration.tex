@@ -1,0 +1,189 @@
+\chapter{Numerical differentiation and integration} 
+
+\newpage 
+\section{Numerical Differentiation} 
+
+\begin{problem}
+    How can we approximate the derivative of a function at a point with only discrete information about the function?
+\end{problem}
+
+
+\begin{method} (Approximating the derivative of a function using two points and computing the error with Taylor Polynomials)
+    The derivative of  function $f$ at a point $x_0$ is 
+    \begin{equation*}
+        f'(x_0) = \lim_{h\to 0} \frac{f(x_0+h)-f(x_0)}{h}.
+    \end{equation*}
+    This formula gives an obvious way to generate an approximation to $f'(x_0)$ by simply taking 
+    \begin{equation*}
+        f'(x_0) \approx \frac{f(x_0+h)-f(x_0)}{h}.
+    \end{equation*}
+    Nevertheless, just doing that gives us no information about the error that we are making with this approximation. To have a precise idea of that, we will use Taylor's expansion around $x_0$,
+    \begin{equation*}
+        f(x_0+h) = f(x_0) + f'(x_0)h + \frac{f''(\xi)}{2!}h^2.
+    \end{equation*}
+    Solving for $f'(x_0)$ we obtain,
+    \begin{equation*}
+         f'(x_0) = \frac{f(x_0+h) - f(x_0)}{h}-  \frac{f''(\xi)}{2!}h.
+    \end{equation*}
+    So, we know that the error is $(f''(\xi)h)/2$.
+    Following the same method, we can also approximate \begin{equation*}
+         f'(x_0) = \frac{f(x_0) - f(x_0-h)}{h}-  \frac{f''(\xi)}{2!}h.
+    \end{equation*}
+    These two formulas are called the \defi{Forward-difference formula} and \defi{Backwards-difference formula} respectively.
+\end{method}
+
+\begin{method} (Approximating the the derivative of a function using three points and computing the error with Lagrange polynomials) 
+    As usual, if we use more information about the object we want to approximate we might expect to have a better result. Thus, if we know the values of $f$ at three points we could use them to have a better idea of the derivative. The procedure is as follows (and can be generalized for more points as well). Suppose we have $\{x_0,x_1,x_2\}$ and $\{f(x_0),f(x_1),f(x_2)\}$, then we will
+    \begin{enumerate}
+        \item Express $f$ as an interpolating polynomial plus an error term.
+        \item Differentiate.
+        \item Evaluate the derivative at the nodes.
+    \end{enumerate}
+    For the first part we write 
+    \begin{equation*}
+        f(x) = \sum_{k=0}^2 f(x_k)L_{n,k}(x) + (x-x_0)(x-x_1)(x-x_2)\frac{f^{(3)}(\xi)}{3!}.
+    \end{equation*}
+    Now, renaming $\omega(x):= (x-x_0)(x-x_1)(x-x_2)$ and differentiating we get 
+    \begin{equation*}
+        f'(x) = \sum_{k=0}^2 f(x_k)L'_{n,k}(x) + \omega'(x)\frac{f^{(3)}(\xi)}{3!} + \omega(x) \frac{d}{dx}\left(\frac{f^{(3)}(\xi)}{3!}\right).
+    \end{equation*} 
+    Since $\omega(x_j) = 0$ evaluating the expression at the nodes 
+    \begin{equation}\label{general3pointformula}
+        f'(x_j) = \sum_{k=0}^2 f(x_k)L'_{n,k}(x_j) + \omega'(x_j)\frac{f^{(3)}(\xi)}{3!}.
+    \end{equation}
+    And this formula works for every three points we take. Nevertheless, we still have to compute $L'_{n,k}$ and $\omega'(x_j)$ for each node. The general formulas are
+    \begin{align*}
+        L_{n,0}(x) = \frac{(x-x_1)(x-x_2)}{(x_0-x_1)(x_0-x_2)}, \qquad & L'_{n,0}(x) = \frac{2x-x_1-x_2}{(x_0-x_1)(x_0-x_2)}\\
+        L_{n,1}(x) = \frac{(x-x_0)(x-x_2)}{(x_1-x_0(x_1-x_2)}, \qquad & L'_{n,1}(x) = \frac{2x-x_0-x_2}{(x_1-x_0)(x_1-x_2)}\\
+        L_{n,2}(x) = \frac{(x-x_0)(x-x_1)}{(x_2-x_0)(x_2-x_1)}, \qquad & L'_{n,2}(x) = \frac{2x-x_0-x_1}{(x_2-x_0)(x_2-x_0)}
+    \end{align*}
+    \begin{equation*}
+        \omega'(x_j) = \prod_{k=0,k\neq j}^2 (x_j-x_k)
+    \end{equation*}
+\end{method}
+
+\begin{method}(Approximating the the derivative of a function using three \textbf{equidistant} points and computing the error with Lagrange polynomials) 
+    Formula \eqref{general3pointformula} works every time we have three nodes.But computing the actual coefficients $L'_{n,k}$ and $\omega'(x_j)$ can be somehow complicated for general nodes. We restrict now our attention to the case of equidistant points. That is, $\{x_0,x_0+h,x_0+2h\}$. In that case 
+    the above formulas simplify and we can get 
+    \begin{align*}
+        f'(x_0) &= \frac{1}{h}\left[-\frac{3}{2}f(x_0) + 2 f(x_0+h) - \frac{1}{2}f(x_0+h)\right] + \frac{h^2}{3}f^{(3)}(\xi_0),\\
+        f'(x_0+h) &= \frac{1}{h}\left[-\frac{1}{2}f(x_0)  + \frac{1}{2}f(x_0+2h)\right] + \frac{h^2}{6}f^{(3)}(\xi_1),\\
+        f'(x_0+2h) &= \frac{1}{h}\left[\frac{1}{2}f(x_0) - 2 f(x_0+h) + \frac{3}{2}f(x_0+h)\right] + \frac{h^2}{3}f^{(3)}(\xi_2),
+    \end{align*}
+    As a matter of convenience we change $x_0+h$ by $x_0$  in the middle formula so the points become $\{x_0-h,x_0,x_0+h\}$, and $x_0+2h$ by $x_0$ in the last one to get 
+    \begin{align*}
+        f'(x_0) &= \frac{1}{h}\left[-\frac{3}{2}f(x_0) + 2 f(x_0+h) - \frac{1}{2}f(x_0+h)\right] + \frac{h^2}{3}f^{(3)}(\xi_0),\\
+        f'(x_0) &= \frac{1}{h}\left[-\frac{1}{2}f(x_0-h)  + \frac{1}{2}f(x_0+h)\right] + \frac{h^2}{6}f^{(3)}(\xi_1),\\
+        f'(x_0) &= \frac{1}{h}\left[\frac{1}{2}f(x_0-2h) - 2 f(x_0-h) + \frac{3}{2}f(x_0)\right] + \frac{h^2}{3}f^{(3)}(\xi_2),
+    \end{align*}
+    Having three formulas to compute $f'(x_0)$. Note that the middle one is useful if we have information after and before $x_0$ whereas the other two are useful to estimate the derivatives at the extreme nodes because they only use information from next or previous points respectively.
+    We call the middle one the \defi{Three-point Midpoint Formula} and the other to \defi{Three-point Endpoint Formulas}. Notice that the endpoint formulas are just the same formulas with $-h$ in place of $h$.
+\end{method}
+
+\begin{method}
+    As we did with three points, we can do with arbitrarily many points. The calculations are in general tedious so we will just write down the \defi{Five-point Midpoint Formula} and \defi{Five-point Endpoint Formula} for future reference,
+    \begin{align*}
+        f'(x_0) &= \frac{1}{12h}[f(x_0-2h)-8f(x_0-h)+8f(x_0+h)-f(x_0+2h)] +\frac{h^4}{30}f^{(5)}(\xi),\\
+         f'(x_0) &= \frac{1}{12h}[-25f(x_0)+48f(x_0+h)-36f(x_0+2h)+16f(x_0+3h)-3f(x_0+4h)] +\frac{h^4}{5}f^{(5)}(\xi).
+    \end{align*}
+\end{method}
+
+\begin{remark}  (Improvement in the approximation vs Round-off error) 
+    In the formulas with two points the error term has a $h$, in the ones with three points in has an $h^2$, and in the ones with five points an $h^4$. Meaning that for small steps $h$ the latter formulas have less error than the first ones. Nevertheless, they also need more calculations and therefore are more prone to have bigger round-off errors. 
+\end{remark}
+
+\begin{remark} 
+    Let us analyze the Round-off error for the Three-point Midpoint formula. Suppose that instead of having $f(x_0-h)$ and $f(x_0+h)$ we have some approximations of those values $\tilde{f}(x_0-h)$ and $\tilde{f}(x_0+h)$. Then, 
+    \begin{equation*}
+        f(x_0-h) = \tilde{f}(x_0-h) + err_1,\qquad f(x_0+h) = \tilde{f}(x_0+h) + err_2.
+    \end{equation*}
+    If we use these approximations to compute $f'(x_0)$, and assume that $err_1,err_2\leq \varepsilon$, the total error is bounded by 
+    \begin{equation*}
+        \left|f'(x_0)- \frac{\tilde{f}(x_0+h)-\tilde{f}(x_0-h)}{2h}\right|= \frac{err_2-err_1}{2h}-\frac{h^2}{6}f^{(3)}(\xi) \leq \frac{\varepsilon}{h}+\frac{h^2}{6}f^{(3)}(\xi).
+    \end{equation*}
+    Notice that this indicates that taking smallest steps improve the accuracy of the approximation with exact values of $f$. However, if we take round-off errors into account, decreasing $h$ makes the error go to infinity. As a conclusion, we can say that approximating derivatives is very susceptible to round-off errors (mainly because we are subtracting close numbers). So, having a formula that performs more operations is not always for the best. 
+\end{remark}
+    
+    
+    
+\begin{problem} How can we approximate the second derivative of a function at $x_0$?
+\end{problem}
+
+\begin{method} (Second derivative formulas using Taylor polynomials) 
+    The trick is to combine the Taylor expansions of $f(x_0+h)$ and $f(x_0-h)$ and solve for $f''(x_0)$. Specifically, 
+    \begin{align*}
+        f(x_0+h) = f(x_0) + hf'(x_0) + f''(x_0)\frac{h^2}{2!} + f'''(x_0)\frac{h^3}{3!} + f^{(iv)}(x_0)\frac{h^4}{4!} + \mathcal{O}(h^5),\\
+        f(x_0-h) = f(x_0) - hf'(x_0) + f''(x_0)\frac{h^2}{2!} - f'''(x_0)\frac{h^3}{3!} + f^{(iv)}(x_0)\frac{h^4}{4!} + \mathcal{O}(h^5).
+    \end{align*}
+    Adding those two equations and solving for $f''(x_0)$ we obtain
+    \begin{align*}
+        f''(x_0) &= \frac{f(x_0+h)-2f(x_0)+f(x_0-h)}{h^2} - f^{(iv)}(x_0)\frac{2h^2}{4!} + \mathcal{O}(h^3)  \\
+        &= \frac{f(x_0+h)-2f(x_0)+f(x_0-h)}{h^2} + \mathcal{O}(h^2).
+    \end{align*}
+    
+\end{method}
+    
+
+\section{Richardson Extrapolation}
+
+Richardson's Extrapolation is used to generate high-accuracy results while using lower order formulas. We will explain the method and as an example will be able to derive in a different way the discrete derivatives formulas from the previous section. 
+
+\begin{problem}
+     Suppose we want to estimate an unknown value $M$ using an approximation given by a formula $N_1(h)$ that depends on a parameter $h$ and such that the truncation error is of the form
+     \begin{equation}\label{Robi}
+         M - N_1(h) = K_1h + K_2h^2 + K_3h^3 + \cdots,
+     \end{equation}
+     for some collection of (unknown) constants $K_1,K_2,K_3,\dots$. That is, the formula $N_1(h)$ is an approximation with error of order $\mathcal{O}(h)$ of $M$.
+     Our objective is to combine the $N_1(h)$ formulas for several values of $h$ to create a second approximation $N_2(h)$ that has error term of order at least  $\mathcal{O}(h^2)$.\par
+\end{problem}
+
+\begin{example}
+    One example of this type of approximations is when we want to find $f'(x_0)$ and use a forward differences formula, in that case 
+    \begin{equation*}
+        f'(x_0) = \frac{f(x_0+h)-f(x_0)}{h} + \frac{f''(x_0)h}{2} +   \frac{f'''(x_0)h^2}{3!} + \frac{f^{(iv)}(\xi(h))h^3}{4!}.  
+    \end{equation*}
+    In this case, 
+    \begin{equation*}
+        N_1(h) := \frac{f(x_0+h)-f(x_0)}{h} 
+    \end{equation*}
+    provides different approximations of $f'(x_0)$ depending on the step size $h$ that we choose, and the error has the form of \eqref{Robi}.
+\end{example}
+
+\begin{method} (Richardson's extrapolation method)
+    To see how we can generate  $N_2(h)$ consider the $\mathcal{O}(h)$ formula for approximating $M$ given by steps $h$ and $h/2$
+    \begin{align*}
+        M &= N_1(h)+K_1h+K_2h^2 + K_3h^3+\cdots \\
+        M &= N_1(\frac{h}{2})+K_1\frac{h}{2}+K_2\frac{h^2}{4} + K_3\frac{h^3}{8}+\cdots 
+    \end{align*}
+    If we subtract two times the second equation from the first one we obtain
+    \begin{equation*}
+        M = M - 2M = N_1(h) - 2N_1(\frac{h}{2}) +\frac{K_2h^2}{2} + \frac{3K_3h^3}{4} +\cdots
+    \end{equation*}
+    Thus, the formula $N_2(h) := N_1(h)-2N_1(h/2)$ gives an approximation of order $\mathcal{O}(h^2)$.\par
+    Notice that the election of $h/2$ for the second evaluation was quite arbitrary. We could have choosen any value $h_2$ to evaluate in the second equation for $N_1$. However, once we choose $h_2$ we must find appropriate constants to combine the equations in a way that the error term of bigger order gets canceled away. See exercise
+\end{method}
+
+\begin{remark}(Why the fuck is this called extrapolation?)
+    Extrapolation is just the same than interpolation but instead of trying to find an approximation for $f(x)$ at some point $x$ that is ``inside" some interpolating nodes $x_0,x_1,\dots,x_n$ we want to find an approximation for an $x$ ``outside" the region given by the nodes. 
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[scale=0.4]{Interp Extrap.png}
+    \end{figure}
+    
+    
+    If we analyze Richardson's extrapolation method carefully we will see that it is nothing more than a case of extrapolation. Notice that since all the error terms have powers of $h$ then $M=N_1(0)$ so the idea is to find $N_1(0)$ by interpolating at the points $(h,N_1(h))$ and $(h_2,N_1(h/2))$ with a linear polynomial $P$ and then evaluate $P(0)$. If you do the calculations you will find out that $N_2(h)$ given in the Richardson Extrapolation Method is exactly $P(0)$ with $P$ the polynomial interpolating $N_1$ at the nodes $h$ and $h/2$. \par 
+    You may ask now, why not just taking $N_1(0)$? Think about the case of finding $f'(x_0)$ to answer that question.
+\end{remark}
+    
+    
+%\textcolor{red}{In progress}111
+
+
+\hrule  
+\begin{exercise}
+    Given the approximation 
+    \begin{equation*}
+        M = N_2(h)  +\frac{K_2h^2}{2} + \frac{3K_3h^3}{4} +\cdots,
+    \end{equation*}
+    find two different approximation formulas $N_3$, $\tilde{N_3}$ with error of order $\mathcal{O}(h^3)$ using Richardson Extrapolation Method. Hint: To find the first one use $h/2$ in place of $h$ in the equation given and combine the two expressions. For the second one, use another value different than $h/2$. 
+\end{exercise}

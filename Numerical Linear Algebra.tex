@@ -1,0 +1,281 @@
+\chapter{Numerical Linear Algebra}
+
+\section{Triangular systems and Gaussian elimination}
+
+\begin{algorithm}[H]\caption{Backwards elimination}
+        To solve the $n\times n$ linear system $Ax = b$ with 
+        \begin{equation*}
+        A = 
+        \begin{bmatrix}
+            a_{11} & a_{12} & \dots & a_{1n}\\
+            0 & a_{22} & \dots & a_{1n}\\
+            \vdots & & & \vdots\\
+            0 & 0 & \dots & a_{nn}
+        \end{bmatrix},
+        \qquad
+        b = \begin{bmatrix}
+            b_1 \\
+            b_2 \\
+            \vdots\\
+            b_n
+        \end{bmatrix}.
+    \end{equation*}   
+        \\
+        \KwIn{Number of unknowns and equations $n$;\newline 
+        Matrix $A = [a_{ij}]$, with $1\leq i \leq n$ and $1\leq j \leq n$;\newline Vector $b = [b_i]$, with $1\leq i\leq n$;}
+        \KwOut{Solution $x_1,x_2,\dots,x_n$ or message that the linear system has no unique solution.}
+        \medskip
+        $x_n = b_n/a_{nn}$\;
+        \For{$i=n-1:1$}{
+            \medskip
+            $x_i = [b_{i} - \sum_{j=i+1}^n a_{ij}x_j]/a_{ii}$.
+        }
+    \end{algorithm}
+
+
+\begin{algorithm}[H]\caption{Gaussian elimination}
+        To solve the $n\times n$ linear system
+        \begin{gather*}
+            E_1:  a_{11}x_1 + a_{11}x_1 + \cdots + a_{1n}x_1 = a_{1,n+1}\\
+            E_2:  a_{21}x_1 + a_{22}x_1 + \cdots + a_{2n}x_1 = a_{2,n+1}\\
+            \vdots \qquad\qquad \vdots\qquad \qquad\vdots  \\
+             E_n:  a_{n1}x_1 + a_{n2}x_1 + \cdots + a_{nn}x_1 = a_{n,n+1}
+        \end{gather*}\\
+        \KwIn{Number of unknowns and equations $n$;\newline 
+        Augmented matrix $\tilde{A} = [a_{ij}]$, with $1\leq i \leq n$ and $1\leq j \leq n+1$.}
+        \KwOut{Solution $x_1,x_2,\dots,x_n$ or message that the linear system has no unique solution.}
+        \medskip
+        \For{$i=1:n-1$}{
+            Let $p$ be the smallest integer with $i\leq p\leq n$ and $a_{pi}\neq 0$\\
+            \If{ 'No integer $p$ can be found' } {
+                OUTPUT ('No unique solution exists')\;
+                STOP\;
+            }
+            \If{$p\neq i$}{
+                Perform $E_p \leftrightarrow E_i$
+            }
+            \For{j=i+1:n}{
+                $m_{ij} = a_{ji}/a_{ii}$\;
+                $E_j = E_j - m_{ji}E_i$\;
+            }
+        }
+        Find $x_1,x_2,\dots,x_n$ Solving Triangular System with backwards substitution.
+    \end{algorithm}
+
+
+
+
+\hrule 
+\begin{exercise} 
+    Write the pseudocode and implement and algorithm to solve a Lower triangular system by adapting the Backwards Elimination Algortihm for Upper triangular Systems.
+\end{exercise}
+
+\begin{exercise}
+    
+\end{exercise}
+
+
+\newpage
+
+\section{LU Factorization}
+    
+    From what we have seen so far, solving a general linear system of the form 
+        $$Ax = b$$
+    requires $\mathcal{O}(n^3)$ operations. Instead, if the matrix is in upper triangular (resp lower triangular) form, solving the system only requires $\mathcal{O}(n^2)$ ops. This reduces considerably the amount of work that has to be done. \par
+    If we want to solve several problems involving the same matrix $A$ it can be useful to transform it into a form that only requires a small amount of extra work for each new problem. That is when the $LU$ factorization comes in handy. \par
+    Basically, the objective is to write (whenever it is possible) $A = LU$, with $L$ a lower triangular matrix and $U$ and upper triangular one. Thus, the linear system 
+        $$LU x = A x = b$$
+    can be solved in two easy steps.
+    \begin{enumerate}
+        \item Solve $Ly = b$
+        \item Solve $Ux = y$.
+    \end{enumerate}
+    Then, the amount of work for each new $b$ is of order $\mathcal{O}(2n^2)$.\par
+    To find $L$ and $U$ we simply have to adapt the Gaussian elimination procedure. Let us assume for the moment that we can perform Gaussian elimination without pivoting (pivoting = row interchanges). Remember that after each step, the matrix $A$ is modified. We will denote each successive modification by $A^{(i)}$. Starting with $A^{(1)} := A$, and finishing after $n-1$ steps with an upper triangular matrix  $U:= A^{(n)}$. \par
+    The first step in Gaussian elimination consists on eliminating the entries below the diagonal in the first column of $A$ performing the operations, 
+    \begin{equation*}
+        (E_j) = E_j - m_{j1} E_1, \qquad\text{with } m_{j1} = \frac{a_{21}^{(1)}}{a_{11}^{(1)}}, \qquad j=2,\dots,n.
+    \end{equation*}
+    This can also be written using \defin{Gaussian transformation matrices $M^{(i)}$} of the form 
+    \begin{align*}
+        A^{(2)} = M^{(1)} A^{(1)},
+        \intertext{with }
+        M^{(1)} := 
+        \begin{bmatrix}
+            1 &0 &0 &\dots &0\\
+            -m_{21} &1 &0 &\dots &0\\
+            -m_{31} &0 &1 &\dots &0\\
+            \vdots &\vdots &\vdots &\vdots &\vdots \\
+            -m_{n1} &0 &0 &\dots &1
+        \end{bmatrix}.
+    \end{align*}
+    Analogously, for the next steps, to transform $A^{(k)}$ into $A^{(k+1)}$ we perform
+    \begin{equation*}
+        (E_j) = E_j - m_{jk} E_k, \qquad\text{with } m_{jk} = \frac{a_{jk}^{(k)}}{a_{kk}^{(k)}}, \qquad j=k+1,\dots,n.
+    \end{equation*}
+    Which in matrix form is 
+    \begin{align*}
+        A^{(k+1)} = M^{(k)} A^{(k)},
+        \intertext{with }
+        M^{(k)} := 
+        \begin{bmatrix}
+            1 &0   &0 &0 &\dots &0\\
+            0 &1   &0 &0 &\dots &0\\
+            0 &0   &1 &0 &\dots &0\\
+            \vdots &\vdots &\vdots &1 &\vdots &\vdots \\
+            \vdots &\vdots &\vdots &-m_{k+1,k} &\vdots &\vdots \\
+            \vdots &\vdots &\vdots &\vdots &\vdots &\vdots \\
+            0 &0   &0 &-m_{n,k} &\dots &1
+        \end{bmatrix}.
+    \end{align*}
+    With this notation,
+    \begin{equation*}
+        U = A^{(n)} = M^{(n-1)}M^{(n-2)}\cdots M^{(1)} A.    
+    \end{equation*}
+    Now, since all the $M^{(i)}$ are lower triangular, its product is lower triangular and we denote it $L^{-1} := M^{(n-1)}M^{(n-2)}\cdots M^{(1)}$. Moreover, since $L^{-1}$ is lower triangular, its inverse $L$ will be lower triangular as well. Therefore, 
+    \begin{equation*}
+        LU = L \cdot \left[M^{(n-1)}M^{(n-2)}\cdots M^{(1)}\right] A = L \cdot L^{-1} A = A.    
+    \end{equation*}
+    Let us try to find explicitly $L$. First, notice that $[M^{(i)}]^{-1}$ should be the matrix that reverts the operations 
+    \begin{equation*}
+        (E_j) = E_j - m_{jk} E_k, \qquad\text{with } m_{jk} = \frac{a_{jk}^{(k)}}{a_{kk}^{(k)}}, \qquad j=k+1,\dots,n.
+    \end{equation*}
+    Therefore, it will perform the operations 
+    \begin{equation*}
+        (E_j) = E_j + m_{jk} E_k, \qquad\text{with } m_{jk} = \frac{a_{jk}^{(k)}}{a_{kk}^{(k)}}, \qquad j=k+1,\dots,n.
+    \end{equation*}
+    Or, in matrix form 
+    \begin{equation*}
+        [M^{(k)}]^{-1}=
+        \begin{bmatrix}
+            1 &0   &0 &0 &\dots &0\\
+            0 &1   &0 &0 &\dots &0\\
+            0 &0   &1 &0 &\dots &0\\
+            \vdots &\vdots &\vdots &1 &\vdots &\vdots \\
+            \vdots &\vdots &\vdots &m_{k+1,k} &\vdots &\vdots \\
+            \vdots &\vdots &\vdots &\vdots &\vdots &\vdots \\
+            0 &0   &0 &m_{n,k} &\dots &1
+        \end{bmatrix}.
+    \end{equation*}
+    Now since 
+    \begin{equation*}
+        L = [M^{(1)}]^{-1} \cdots [M^{(n-1)}]^{-1},
+    \end{equation*}
+    we can check that 
+    \begin{equation*}
+        L = 
+        \begin{bmatrix}
+            1 &0   &0 &0 &\dots &0\\
+            m_{21} &1   &0 &0 &\dots &0\\
+            m_{31} &m_{32}   &1 &0 &\dots &0\\
+            \vdots &\vdots &\vdots &1 &\vdots &\vdots \\
+            \vdots &\vdots &\vdots &m_{k+1,k} &\vdots &\vdots \\
+            \vdots &\vdots &\vdots &\vdots &\vdots &\vdots \\
+            m_{n1} &m_{n2}   &m_{n3} &m_{n,k} &\dots &1
+        \end{bmatrix}.
+    \end{equation*}
+    
+    
+    Following this ideas we get the following algorithm. 
+    \begin{algorithm}\caption{LU factorization}
+        To factor the $n\times n$ matrix $A = [a_{ij}]$ into the product of the lower and upper triangular matrices $L =[l_{ij}]$ and $U=[u_{ij}]$. That is, $A = LU$. 
+        
+        \KwIn{Dimension $n$;\newline
+        Matrix $A$;}
+        \KwOut{Entries $l_{ij}$, $1\leq i \leq n$, $1<j\leq i$ of $L$. Stored in the lower triangular part of $A$;\newline
+        Entries $u_{ij}$,  $1\leq i \leq n$, $i\leq j\leq n$ of $U$. Stored in the upper triangular part of $A$;}
+        \medskip
+        \For{i=1,\dots,n-1}{
+            \If{$a_{ii} = 0$}{
+                OUTPUT(`Factorization Impossible')\;
+                STOP\;
+            } 
+            \For(\tcp*[f]{Modify rows $i+1$ to $n$}){$k=i+1,\dots,n$}{
+                $m = a_{ki}/a_{ii}$ \tcp*{Multiplier between rows $k$ and $i$}
+                \For(\tcp*[f]{Modify entries of row k}){$j=i+1:n$}{
+                    $a_{kj} = a_{kj}-ma_{ij}$\;
+                }  
+                $a_{ki} = m$ \tcp*{Save multiplier in lower part of $A$}
+            }
+            
+            
+        }
+        OUTPUT(A)\;
+    \end{algorithm}
+    
+    
+    
+    Previous algorithm assumes that Gaussian elimination of $A$ can be performed without pivoting (row interchanges). In case that is not possible, there is still hope to find a good decomposition of a permutation of $A$ instead. By \defi{permutation of A} we mean a matrix that is found by just rearranging the rows of $A$. All we have to notice is that if two rows are interchanged in the middle of the process, that is equivalent to change them before starting the $LU$ decomposition and then proceeding without pivoting. Thus, the only thing that we need to add is a way to track where each row finished. We introduce the variables $p_i$ representing which initial row of $A$ ended in the position $i$. Before writing the algorithm, we will see a specially useful pivoting strategy that is done to avoid round-off error propagation.\par
+    If the elements $a_{kk}^{(k)}$ are small in magnitude compared $a_{jk}^{(k)}$, then the magnitude of the multiplier 
+    \begin{equation*}
+        m_{jk} = \frac{a_{jk}^{(k)}}{a_{kk}^{(k)}}
+    \end{equation*}
+    will be much larger than 1. Round-off error introduced in the row $E_k$ will be then greatly amplified when we do $E_j = E_j - m_{jk}E_k$. Therefore, is is useful to interchange row $k$ with the row below $k$ that has the bigger element in column $k$. The  algorithm ends as follows, 
+    
+    \begin{algorithm}\caption{LU factorization with partial row pivoting}
+        To factor the $n\times n$ permutation of  matrix $A = [a_{ij}]$ into the product of the lower and upper triangular matrices $L =[l_{ij}]$ and $U=[u_{ij}]$. That is, $PA = LU$. Where $P$ is a permutation matrix. 
+        
+        \KwIn{Dimension $n$;\newline
+        Matrix $A$;}
+        \KwOut{Entries $l_{ij}$, $1\leq i \leq n$, $1<j\leq i$ of $L$. Stored in the lower triangular part of $A$;\newline
+        Entries $u_{ij}$,  $1\leq i \leq n$, $i\leq j\leq n$ of $U$. Stored in the upper triangular part of $A$;\newline
+        Numbers $p_i$, $i=1,\dots,n$, representing what row of $A$ finished in the position $i$;}
+        \medskip
+        Set $p_i = i$ for $i=1,\dots,n$\;
+        \For{i=1,\dots,n-1}{
+            Find $l$ such that $|a_{li}| = \max_{i\leq j \leq n} |a_{ji}|$ \tcp*{Find row with biggest element at column $i$}
+            $p_i \leftrightarrow p_l$\;
+            $a_{i,j}\leftrightarrow a_{l,j}$, $j=1,\dots,n$\;
+         
+            \For(\tcp*[f]{Modify rows $i+1$ to $n$}){$k=i+1,\dots,n$}{
+                $m = a_{ki}/a_{ii}$ \tcp*{Multiplier between rows $k$ and $i$}
+                \For(\tcp*[f]{Modify entries of row k}){$j=i+1:n$}{
+                    $a_{kj} = a_{kj}-ma_{ij}$\;
+                }  
+                $a_{ki} = m$ \tcp*{Save multiplier in lower part of $A$}
+            }
+        }
+        OUTPUT(A, $p_i$, $i=1,\dots,n$)\;
+    \end{algorithm}
+    
+    
+    There are other types of pivoting strategies, but in general they require too much extra work for the added benefits. We will not cover those extra pivoting strategies in this course. \par
+    
+    One question that remains open is, under which conditions a matrix $A$ has an $LU$ decomposition. In general to find that out one just runs the algorithm and see if it can finish without errors. Nevertheless, there are some theoretical result that can also be used in some circumstances. 
+    
+    \begin{definition}
+        Let $A = (a_{ij})$ be an $n\times n$ matrix. Its leading principal submatrices are the square matrices 
+        \begin{equation*}
+            A_k = 
+            \begin{bmatrix}
+                    a_{11} &\cdots &a_{1k}\\
+                    \vdots & &\vdots\\
+                    a_{k1} &\cdots &a_{kk}
+            \end{bmatrix}, \qquad
+            k = 1, \dots, n.
+        \end{equation*}
+    \end{definition}
+    
+    \begin{theorem}
+        Let $A$ be an $n\times n$ matrix whose leading principal submatrices $A_1,\dots,A_n$ are all nonsingular. Then, there exists an $n\times n$ lower triangular matrix $L$, with ones on its diagonal, and an $n\times n$ upper triangular matrix $U$ such that $A=LU$ and this factorization is unique.
+        
+    \end{theorem}
+    
+    \begin{proof}
+    \end{proof}
+    
+    
+    Two special families of matrices satisfy the hypothesis of this theorem. 
+    
+    \begin{definition}
+        An $n \times n$ matrix $A$ is said \defi{diagonally dominant} when 
+        \begin{equation*}
+            |a_{ij}|\geq \sum_{j=1,j\neq i}|a_{ij}|, \qquad \text{for } i = 1,2,\dots,n.
+        \end{equation*}
+        A diagonally dominant matrix is said to be \defi{strictly diagonally dominant} when the inequality is strict. That is, when $\geq$ is replaced by $>$.
+    \end{definition}
+    
+    \begin{definition}
+        A matrix $A$ is \defi{positive definite} if it is symmetric and if $x^T A x>0$ for every vector $x$. Note: Not everyone requires symmetry for a positive definite matrix. Always check the definition given because this one changes from author to author.
+    \end{definition}
+  

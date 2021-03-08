@@ -1,0 +1,195 @@
+\chapter{Round-off Errors and Computer Arithmetic}
+\newpage 
+
+\section{Floating points}
+\begin{problem} 
+    What numbers can be represented in the computer?
+\end{problem}
+
+\begin{definition} (Scientific notation of numbers in binary)  
+    Numbers can be represented using \defi{scientific notation in binary}. For example 
+    \begin{align*}
+        (101.01)_2 &= 1.0101\times 2^2\\
+        &=(1 \cdot2^0 + 0\cdot2^{-1} + 1\cdot 2^{-2} + 0 \cdot 2^{-3} + 1\cdot 2^{-4}) \times 2^2\\
+        &= 5.25
+    \end{align*}
+    We can write any non-zero real number $x$ in normalized, binary, scientific notation as \begin{align*}
+        x=\pm S \times 2^E, \qquad 1\leq S<2,
+    \end{align*}
+    where $S$ is called the significant and $E$ is the exponent. In general $S$ is an infinite expansion of the form     $$ S= (1.b_1b_2\dots)_2$$
+\end{definition}
+
+
+\begin{definition} (Floating point numbers) 
+    A \defi{floating point} number is a real number that is represented in scientific notation but using a finite number of binary digits  (bits) in a computer. \par
+    In single precision (SP), floating point numbers are stored in 32-bit words: 1 bit for sign, 23 bits for $S$ and $8$ bits for $E$. In double precision (DP), a 64-bit word is employed: 1 bit for the sign, 52 bits for $S$, and 11 bits for $E$. \par 
+    The maximum exponent possible in DP would be $2^{11}-1=2047$ but this is shifted to allow representation of small and large numbers so that we actually have $E_{min} = -1022$, $E_{max} = 1023$. Consequently the min and max DP floating point number that can be represented are
+    \begin{align*}
+        N_{min} &= \min_{x\in DP} |x| = 2^{-1022} \approx 2.2 \times 10^{-308},\\
+        N_{max} &= \min_{x\in DP} |x| = (1.11\dots1)_2^{1023} \approx 1.8 \times 10^{308}.
+    \end{align*}
+\end{definition}
+
+\begin{example} 
+    Represent $0.5$, $0.75$, $1$ and $2$ in binary with 4 significant bits.
+    \begin{align*}
+        0.5 &= 1.0000 \times 2^{-1}, \qquad  &&
+        0.75 = 1.1000 \times 2^{-1},\\
+        1 &= 1.0000 \times 2^{0},
+        \qquad &&
+        2 = 1.0000 \times 2^{1}.\\
+    \end{align*}
+\end{example}
+
+
+\begin{definition} (Machine Numbers)
+    We call the set of all real numbers that can be represented in a computer as \defi{machine numbers}. This set varies depending on the specifications of the computer. Notice that machine numbers are not uniformly distributed.
+\end{definition}
+
+\hrule
+
+\begin{exercise} 
+    How many machine numbers are between $2^{-1}$ and 1 in single precision in MatLab? Run Example 1.1.6 and explain the results. 
+\end{exercise}
+
+\newpage
+\section{Rounding off and machine precision}
+
+\begin{problem} 
+    How to approximate numbers in the computer?
+\end{problem}
+
+
+\begin{definition} (Round-off Approximation) 
+    To represent a real number $x$ as a floating point number, rounding has to be performed to retain only the number of binary bits allowed in the significant $S$. Let $x\in \R$ and its binary expansion be $x=\pm(1.b_1b_2\dots)_2\times 2^E$. One way to approximate is to truncate or chop discarding all the bits after $b_d$, i.e.
+        $$x^*=chop(x) = \pm(1.b_1b_2\dots b_d)\times 2^E.$$
+    A better way (and the one the computer usually does) is to do rounding up or down to the nearest floating point number. In binary rounding is simple because $b_{d+1}$ can only be 0 (we round down) or 1 (we round up). We can write this type of rounding in terms of the chopping described above as
+        $$x^*=round(x)=chop(x+2^{d+1}\times 2^E).$$
+    Since in general all computers approximate by rounding, we will only consider this approximation from now on.
+\end{definition}
+
+\begin{example} 
+    Round the numbers $1.11101 \times 2^4$, $1.11111 \times 2^4$ and $1.11110 \times 2^4$ using 4 significant bits. 
+    \begin{align*}
+        1.11101 \times 2^4 \to 1.1111 \times 2^4,\\
+        1.11111 \times 2^4 \to 1.0000 \times 2^5,\\
+        1.11101 \times 2^4 \to 1.1110 \times 2^4.
+    \end{align*}
+\end{example}
+
+
+\begin{definition} (Absolute and Relative Errors)
+    Given an approximation $x^*$ to $x$ the \defi{absolute error} is defined by $|x-x^*|$ and the \defi{relative error} by $\frac{|x-x^*|}{|x|}$.
+\end{definition}
+
+\begin{lemma} (Absolute and Relative errors of rounding, Round-off error)
+    The \defi{absolute rounding error} is 
+        $$|x-round(x)| \leq \frac{2^E}{2^{d+1}}.$$
+    The \defi{relative rounding error} is 
+        $$\left|\frac{x-round(x)}{x}\right|\leq \frac{2^{-d}}{2}.$$
+    We call this last error the \defi{round-off error}.
+\end{lemma}
+
+\begin{definition} (Machine Epsilon)
+    The number $2^{-d}$ (where $d$ depends on your precision) is called \defi{machine epsilon (eps)} or \defi{unit rounding error}. 
+\end{definition}
+
+\begin{lemma}
+    The smallest floating point greater than 1 is $1\ +$ eps. The machine epsilon is related to the rounding approximation by 
+        $$round(x) = x(1+\delta), \qquad |\delta|<\text{eps}/2.$$
+\end{lemma}
+
+\hrule
+
+\begin{exercise} 
+    Run the command eps$(1)$ and eps$(1000)$ in MatLab and explain your results.
+\end{exercise}
+
+
+\newpage
+\section{Error propagation and cancellation of digits}
+
+\begin{problem} 
+    How round-off errors propagate?
+\end{problem}
+
+
+\begin{lemma} (Propagation of errors in basic arithmetic operations) 
+    Let $fl(x)$ and $fl(y)$ denote the floating point approximation of $x$ and $y$, respectively. Then, approximations for the relative errors of the product $xy$ and the addition $x+y$ are
+    \begin{enumerate}
+        \item $$\left|\frac{xy-fl(x)fl(y)}{xy}\right| \approx |\delta_x+\delta_y|$$
+        \item $$\left|\frac{(x+y)-(fl(x)+fl(y))}{x+y}\right| = \left|\frac{x}{x+y}\delta_x+\frac{y}{x+y}\delta_y\right|$$
+        If $x$ and $y$ have the same sign then $\frac{x}{x+y}$ and $\frac{y}{x+y}$ are both positive and bounded by 1. Therefore, the relative error is less than $|\delta_x+\delta_y|$, which is fine. But if $x$ and $y$ have different signs and are close in magnitude the error could be largely amplified!
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}\
+    \begin{enumerate}
+        \item Assume that the product of the floating numbers $fl(x)$ and $fl(y)$ is computed exactly, i.e. 
+        $$fl(x)fl(y) = x(1+\delta_x)\cdot y(1+\delta_y) \approx x\cdot y (1+\delta_x+\delta_y). $$
+        We then have 
+        $$\left|\frac{xy-fl(x)fl(y)}{xy}\right| \approx |\delta_x+\delta_y|.$$
+        \item Now consider addition.
+        \begin{align*}
+            fl(x)+fl(y) 
+            &= x(1+\delta_x) + y(1+\delta_y) = x+y+x\delta_x + y\delta_y \\
+            %&= (x+y)\left(1+\frac{x}{x+y}\delta_x+\frac{y}{x+y}\delta_y\right).
+        \end{align*}
+        Then
+        \begin{align*}
+            \left|\frac{(x+y)-(fl(x)+fl(y))}{x+y}\right| %&= \left|\frac{(x+y)\left(1+\frac{x}{x+y}\delta_x+\frac{y}{x+y}\delta_y-1\right)}{x+y}\right|\\
+            &=\left|\frac{x}{x+y}\delta_x+\frac{y}{x+y}\delta_y\right|.
+        \end{align*}
+    \end{enumerate}
+\end{proof}
+
+    
+
+
+\begin{remark} (How much we will worry about Round-off Errors?) 
+    In applications, tracking exactly the propagation and magnitude of rounding errors can be a very daunting task. What can be done, and is very important, is to identify possible causes that propagate the errors more than what one considers  admissible.
+\end{remark}
+
+
+\begin{example} (Adding very different numbers)
+     Suppose we have 10 bits of precision 
+    \begin{align*}
+        x &= (1.0101110000)_2 \times 2^{11},\\
+        y &= (1.0101100000)_2 \times 2^0,\\
+        x+y &= (1.010110000)_2 \times 2^{11}.
+    \end{align*}
+    We completely lost the information of the second number! So, when adding a sequence of numbers, it might be useful to add from the smallest to the biggest number.
+\end{example}    
+
+\begin{example} (Catastrophic Cancellation)   
+    Suppose we have 10 bits of precision 
+    \begin{align*}
+        x &= (1.01011100**)_2 \times 2^E,\\
+        y &= (1.01011000**)_2 \times 2^E,
+    \end{align*}
+    Where the * stands for inaccurate bits (i.e. garbage) that say were generated in previous floating point computations. Then, in this 10 bit precision arithmetic
+        $$z=x-y=(1.00********)_2 \times 2^{E-6}.$$
+    We end up with only 2 bits of accuracy in $z$. Any further calculation using $z$ will result in an accuracy of 2 bits of lower.\par 
+    
+    In some cases we can rewrite the difference of two numbers to avoid this problems. Suppose for example we want to compute 
+        $$y=\sqrt{1+x}-1$$
+    for $x>0$ very small. Then, we can rewrite it as 
+        $$y= \frac{\sqrt{1+x}+1}{\sqrt{1+x}+1} (\sqrt{1+x}-1) = \frac{x}{\sqrt{1+x}+1}$$
+    then the computation can be performed at nearly machine precision level.
+\end{example}  
+
+\hrule
+
+\begin{exercise}  (Too many arithmetic operations in polynomial evaluation) 
+    Run Exercise010301.mlx to answer the following. Let $p$ be the polynomial 
+        $$p(x) = x^3-6.1x^2+3.2x+1.5.$$
+    Compute the value of $p$ at $x=4.71$ using three digit (decimal) arithmetic,
+    \begin{itemize}
+        \item[a)] Using the formula given.
+        \item[b)]Using the nested formula 
+            $$p(x) = ((x-6.1)x - 3.2) +1.5.$$
+    \end{itemize}
+    Compare the error if the exact answer is $p(4.71) = -14.263899$. Why do you think one method is less accurate?
+\end{exercise}  
+
+  

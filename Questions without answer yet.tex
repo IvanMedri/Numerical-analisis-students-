@@ -1,0 +1,6 @@
+\chapter{Questions}
+
+\begin{itemize}
+    \item Looking at page 12, the FPIM, you set $p=g(p_0)$, then check if $p -g(p_0)$ is less than tolerance. Since $p = g(p_0)$, this will always be zero, correct? Is this meant to say something different or am I very confused? \par
+    ANSWER: Note that once you do $p=g(p)$ the value of $p$ changes. Imagine for example that $g(x)=x^2$ and $p_0=2$. At first $p=2$, when $i=1$ $p=g(p)=g(2)=2^2=4$. Then, at that point $p$ is no more $2$. So when you do $p-g(p)$ you compute $4-g(4)$ and not $4-g(2)$. Then, it will not be zero.
+\end{itemize}
